@@ -312,6 +312,7 @@ try{ const s=localStorage.getItem("amidenim_cart"); if(s) cart=JSON.parse(s); }c
 function persist(){ try{ localStorage.setItem("amidenim_cart",JSON.stringify(cart)); }catch(e){} }
 const euro=n=>"€"+Number(n).toFixed(2).replace(".",",");
 const find=id=>PRODUCTS.find(p=>p.id===id);
+function cleanCart(){ const before=cart.length; cart=cart.filter(id=>find(id)); if(cart.length!==before) persist(); }
 
 function boot(){
   buildMarquee(DEFAULT_SITE.content.marquee.split(",").map(s=>s.trim()));
@@ -338,10 +339,11 @@ function boot(){
           PRODUCTS=arr;
         }
         applySite(mergeSite(ss.val()));
+        cleanCart();
         renderGrid();
-      }).catch(err=>{ console.warn("Firebase non raggiungibile, uso i default.",err); applySite(DEFAULT_SITE); renderGrid(); });
-    }catch(e){ console.warn(e); applySite(DEFAULT_SITE); renderGrid(); }
-  }else{ applySite(DEFAULT_SITE); renderGrid(); }
+      }).catch(err=>{ console.warn("Firebase non raggiungibile, uso i default.",err); applySite(DEFAULT_SITE); cleanCart(); renderGrid(); });
+    }catch(e){ console.warn(e); applySite(DEFAULT_SITE); cleanCart(); renderGrid(); }
+  }else{ applySite(DEFAULT_SITE); cleanCart(); renderGrid(); }
 }
 
 /* ---------- applica aspetto/contenuti ---------- */
@@ -414,7 +416,7 @@ function denimSVG(p){
     <rect width="260" height="325" fill="url(#g_${id})"/><rect width="260" height="325" fill="url(#t_${id})" opacity=".55"/>${ov}
     <g transform="translate(168,232)"><path d="M0 0 h64 v34 l-32 22 l-32 -22 z" fill="${D}" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><path d="M8 12 q24 18 48 0" fill="none" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><circle cx="4" cy="4" r="3.4" fill="#cf7a2e"/></g></svg>`;
 }
-function media(p){ return p.image?`<img src="${p.image}" alt="${esc(p.name||'')}">`:denimSVG(p); }
+function media(p){ if(!p) return ''; return p.image?`<img src="${p.image}" alt="${esc(p.name||'')}">`:denimSVG(p); }
 
 function renderGrid(){
   document.getElementById("grid").innerHTML = PRODUCTS.map(p=>{
@@ -452,10 +454,10 @@ function renderCart(){
   if(checkoutMode){ itemsBox.style.display="none"; co.classList.add("show"); renderCheckout(); }
   else{
     itemsBox.style.display="block"; co.classList.remove("show");
-    itemsBox.innerHTML=cart.map(id=>{const p=find(id);return `<div class="item">
+    itemsBox.innerHTML=cart.map(id=>find(id)).filter(Boolean).map(p=>`<div class="item">
       <div class="thumb">${media(p)}</div>
       <div class="info"><h4>${esc(p.name)}</h4><div class="b">${esc(p.base||'')} · ${esc(p.size||'')}</div><div class="pr">${euro(p.price)}</div>
-      <button class="rm" onclick="removeFromCart('${p.id}')">Rimuovi</button></div></div>`;}).join("");
+      <button class="rm" onclick="removeFromCart('${p.id}')">Rimuovi</button></div></div>`).join("");
   }
   renderSummary();
 }
