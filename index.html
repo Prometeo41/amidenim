@@ -6,9 +6,6 @@
 <title>AMIDENIM — Jeans di marca ridisegnati a mano</title>
 <meta name="description" content="Capi di marca vintage selezionati, destrutturati e personalizzati uno a uno. Pezzi unici, denim rigenerato.">
 
-<!-- ============================================================= -->
-<!--  FIREBASE — identico ad admin.html                            -->
-<!-- ============================================================= -->
 <script>
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBVmpf8EoVM7E8BoenEfSuIhaQDPPSPLjI",
@@ -22,16 +19,11 @@ const FIREBASE_CONFIG = {
 const DB_ROOT = "amidenim";
 function firebaseConfigured(){ return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "INSERISCI"; }
 
-// Valori di default usati SOLO se Firebase non è ancora configurato.
 let CONFIG = {
   PAYPAL_CLIENT_ID: "INSERISCI_QUI_IL_TUO_CLIENT_ID",
-  PAYPAL_CURRENCY: "EUR",
-  PAYPALME: "",
-  SHOP_NAME: "AMIDENIM",
-  SHIPPING: 8.90,
-  FREE_SHIPPING_OVER: 200
+  PAYPAL_CURRENCY: "EUR", PAYPALME: "", SHOP_NAME: "AMIDENIM",
+  SHIPPING: 8.90, FREE_SHIPPING_OVER: 200
 };
-// Catalogo di riserva (mostrato se Firebase non risponde / è vuoto).
 let PRODUCTS = [
   { id:"breakwater", name:"Breakwater", base:"Levi's 501", mod:"distressed", size:"W32 L32", price:119, num:"001/UNICO", wash:"#3f5d83", desc:"Strappi a mano sulle ginocchia, baffature sbiancate, orlo grezzo." },
   { id:"inkblot", name:"Inkblot", base:"Diesel Thommer", mod:"painted", size:"W30 L32", price:145, num:"002/UNICO", wash:"#202a40", desc:"Vernice tessile applicata e screpolata a mano." },
@@ -40,6 +32,32 @@ let PRODUCTS = [
   { id:"raw-cut", name:"Raw Cut", base:"Carhartt", mod:"cropped", size:"W33 L30", price:109, num:"005/UNICO", wash:"#5a7aa3", desc:"Accorciato e lasciato sfrangiare. Tessuto robusto da workwear." },
   { id:"midnight-fade", name:"Midnight Fade", base:"Lee", mod:"acid wash", size:"W32 L34", price:115, num:"006/UNICO", wash:"#283a55", desc:"Lavaggio acido custom: schiariture nuvolose su fondo blu notte." }
 ];
+
+/* Valori di default di aspetto/contenuti (uguali in admin.html). Usati se "site" non è impostato. */
+const DEFAULT_SITE = {
+  theme:{ dark:"#141b29", deep:"#1d2a45", accent:"#cf7a2e", accent2:"#ec9646", light:"#f1ece1", paper:"#e7e0d2", text:"#13181f" },
+  layout:{ cols:3, heroAlign:"left", order:["collezione","processo","storia"], showMarquee:true, showProcesso:true, showStoria:true },
+  content:{
+    brand:"AMI|DENIM",
+    heroEyebrow:"Denim custom · pezzi unici",
+    heroTitle:"Jeans di marca, *ridisegnati* a mano.",
+    heroLead:"Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.",
+    ctaPrimary:"Scopri i pezzi", ctaSecondary:"Come funziona",
+    marquee:"PEZZI UNICI, SPEDIZIONE IN TUTTA ITALIA, DENIM RIGENERATO, FATTO A MANO, NUMERATO 1/1",
+    colKicker:"// La collezione", colTitle:"Sei pezzi, sei storie",
+    colSub:"Ogni capo è numerato e venduto in copia singola. Una volta in carrello, è tuo: nessun altro avrà lo stesso.",
+    procKicker:"// Dal capo originale al pezzo unico", procTitle:"Il processo",
+    step1Title:"Selezione", step1Text:"Recuperiamo capi originali di marca, scelti a uno a uno per qualità del tessuto e vestibilità.",
+    step2Title:"Destrutturazione", step2Text:"Scuciture, tagli, lavaggi e trattamenti fatti a mano in laboratorio. Qui il capo perde la sua vita precedente.",
+    step3Title:"Firma", step3Text:"Custom finale: vernici, toppe, ricami a contrasto. Ogni pezzo esce numerato e irripetibile.",
+    edTitle:"Non produciamo jeans.\nNe diamo un secondo giro.",
+    edText:"AMIDENIM nasce da un'idea semplice: il denim di marca è fatto per durare decenni, ma finisce dimenticato negli armadi. Noi lo intercettiamo e lo trasformiamo in qualcosa che nessuno ha mai indossato prima.",
+    edBullets:"Capi base autentici, non riproduzioni\nLavorazione artigianale, zero produzione in serie\nOgni pezzo numerato e fotografato com'è\nMeno tessuto nuovo, più denim rimesso in circolo",
+    footTagline:"Denim di marca ridisegnato a mano. Pezzi unici, spediti in tutta Italia.",
+    footEmail:"info@amidenim.it",
+    footLegal:"AMIDENIM personalizza capi originali acquistati legalmente: i marchi citati indicano solo la provenienza del capo di partenza, senza alcun rapporto di affiliazione o sponsorizzazione."
+  }
+};
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,6 +99,10 @@ nav.links a:hover::after{width:100%}
 .hero h1 em{color:var(--copper-bright);font-style:normal}
 .hero p.lead{margin-top:26px;max-width:46ch;font-size:17px;color:var(--chambray);position:relative;z-index:1}
 .hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:36px;position:relative;z-index:1}
+.hero.center .wrap{display:flex;flex-direction:column;align-items:center;text-align:center}
+.hero.center h1{max-width:18ch}
+.hero.center p.lead{max-width:54ch}
+.hero.center .cta{justify-content:center}
 .btn{font-family:"Archivo";font-weight:700;font-size:14px;letter-spacing:.04em;padding:15px 26px;border-radius:2px;border:2px solid transparent;cursor:pointer;text-decoration:none;display:inline-block;transition:transform .15s,background .2s}
 .btn:active{transform:translateY(1px)}
 .btn-primary{background:var(--copper);color:#1a1206}.btn-primary:hover{background:var(--copper-bright)}
@@ -100,6 +122,9 @@ section{padding:78px 0}
 .step h3{font-size:15px;letter-spacing:.14em;text-transform:uppercase;margin:14px 0 8px}
 .step p{font-size:14.5px;color:#4a4940}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:44px}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.grid.cols-4{grid-template-columns:repeat(4,1fr)}
 .card{background:var(--cream);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--line)}
 .card .ph{position:relative;aspect-ratio:4/5;background:var(--indigo)}
 .card .ph svg,.card .ph img{position:absolute;inset:0;width:100%;height:100%}
@@ -160,7 +185,6 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 .row.tot{font-size:18px;font-weight:700;margin-top:8px;padding-top:12px;border-top:1px dashed var(--line)}
 .cobtn{width:100%;border:none;cursor:pointer;background:var(--copper);color:#1a1206;font-family:"Archivo";font-weight:700;font-size:14px;letter-spacing:.04em;padding:14px;border-radius:2px;text-transform:uppercase;margin-top:6px}
 .cobtn:hover{background:var(--copper-bright)}
-/* checkout form */
 .checkout{padding:18px 22px;display:none}
 .checkout.show{display:block}
 .checkout h4{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:18px;letter-spacing:.03em;margin:16px 0 10px}
@@ -169,7 +193,6 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 .fld label{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#54534a;margin-bottom:4px}
 .fld input{width:100%;padding:10px 11px;border:1.5px solid var(--line);border-radius:3px;background:#fff;font-size:14px}
 .fld input:focus{outline:none;border-color:var(--copper)}
-.fld input.bad{border-color:#c0444c;background:#fdf3f3}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .f3{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:10px}
 .chk{display:flex;align-items:center;gap:9px;font-size:13.5px;margin:6px 0 4px;cursor:pointer}
@@ -184,8 +207,8 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 .pmlink{display:block;text-align:center;background:#0070ba;color:#fff;text-decoration:none;font-weight:700;padding:13px;border-radius:4px;margin-top:10px;font-size:14px}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--indigo-raw);color:var(--cream);padding:13px 22px;border-radius:3px;font-size:14px;font-weight:600;opacity:0;visibility:hidden;transition:.3s;z-index:120;border-left:4px solid var(--copper)}
 .toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-@media(max-width:860px){.steps{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.editorial .wrap{grid-template-columns:1fr}nav.links{display:none}}
-@media(max-width:560px){.grid{grid-template-columns:1fr}.bar{height:60px}.brand{font-size:25px}.cartbtn span.lbl{display:none}.f3{grid-template-columns:1fr}}
+@media(max-width:860px){.steps{grid-template-columns:1fr}.grid,.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:repeat(2,1fr)}.editorial .wrap{grid-template-columns:1fr}nav.links{display:none}}
+@media(max-width:560px){.grid,.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr}.bar{height:60px}.brand{font-size:25px}.cartbtn span.lbl{display:none}.f3{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.marquee div{animation:none}*{scroll-behavior:auto}}
 </style>
 </head>
@@ -193,7 +216,7 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 
 <header>
   <div class="wrap bar">
-    <div class="brand" onclick="scrollTo({top:0,behavior:'smooth'})">AMI<b>DENIM</b></div>
+    <div class="brand" id="brandHeader" onclick="scrollTo({top:0,behavior:'smooth'})">AMI<b>DENIM</b></div>
     <nav class="links">
       <a href="#collezione">Collezione</a>
       <a href="#processo">Il processo</a>
@@ -203,37 +226,37 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
   </div>
 </header>
 
-<div class="hero">
+<div class="hero" id="hero">
   <div class="wrap">
-    <span class="eyebrow">Denim custom · pezzi unici</span>
-    <h1>Jeans di marca, <em>ridisegnati</em> a mano.</h1>
-    <p class="lead">Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.</p>
+    <span class="eyebrow" id="heroEyebrow">Denim custom · pezzi unici</span>
+    <h1 id="heroTitle">Jeans di marca, <em>ridisegnati</em> a mano.</h1>
+    <p class="lead" id="heroLead">Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.</p>
     <div class="cta">
-      <a href="#collezione" class="btn btn-primary">Scopri i pezzi</a>
-      <a href="#processo" class="btn btn-ghost">Come funziona</a>
+      <a href="#collezione" class="btn btn-primary" id="ctaPrimary">Scopri i pezzi</a>
+      <a href="#processo" class="btn btn-ghost" id="ctaSecondary">Come funziona</a>
     </div>
   </div>
 </div>
 
-<div class="marquee" aria-hidden="true"><div id="mq"></div></div>
+<div class="marquee" id="marquee-wrap" aria-hidden="true"><div id="mq"></div></div>
 
 <section id="collezione">
   <div class="wrap">
-    <div class="kicker">// La collezione</div>
-    <h2 class="h2">Sei pezzi, sei storie</h2>
-    <p class="sub">Ogni capo è numerato e venduto in copia singola. Una volta in carrello, è tuo: nessun altro avrà lo stesso.</p>
-    <div class="grid" id="grid"></div>
+    <div class="kicker" id="colKicker">// La collezione</div>
+    <h2 class="h2" id="colTitle">Sei pezzi, sei storie</h2>
+    <p class="sub" id="colSub">Ogni capo è numerato e venduto in copia singola. Una volta in carrello, è tuo: nessun altro avrà lo stesso.</p>
+    <div class="grid cols-3" id="grid"></div>
   </div>
 </section>
 
 <section id="processo" class="process">
   <div class="wrap">
-    <div class="kicker">// Dal capo originale al pezzo unico</div>
-    <h2 class="h2">Il processo</h2>
+    <div class="kicker" id="procKicker">// Dal capo originale al pezzo unico</div>
+    <h2 class="h2" id="procTitle">Il processo</h2>
     <div class="steps">
-      <div class="step stitched"><div class="no">01</div><h3>Selezione</h3><p>Recuperiamo capi originali di marca, scelti a uno a uno per qualità del tessuto e vestibilità.</p></div>
-      <div class="step stitched"><div class="no">02</div><h3>Destrutturazione</h3><p>Scuciture, tagli, lavaggi e trattamenti fatti a mano in laboratorio. Qui il capo perde la sua vita precedente.</p></div>
-      <div class="step stitched"><div class="no">03</div><h3>Firma</h3><p>Custom finale: vernici, toppe, ricami a contrasto. Ogni pezzo esce numerato e irripetibile.</p></div>
+      <div class="step stitched"><div class="no">01</div><h3 id="step1Title">Selezione</h3><p id="step1Text">Recuperiamo capi originali di marca, scelti a uno a uno per qualità del tessuto e vestibilità.</p></div>
+      <div class="step stitched"><div class="no">02</div><h3 id="step2Title">Destrutturazione</h3><p id="step2Text">Scuciture, tagli, lavaggi e trattamenti fatti a mano in laboratorio. Qui il capo perde la sua vita precedente.</p></div>
+      <div class="step stitched"><div class="no">03</div><h3 id="step3Title">Firma</h3><p id="step3Text">Custom finale: vernici, toppe, ricami a contrasto. Ogni pezzo esce numerato e irripetibile.</p></div>
     </div>
   </div>
 </section>
@@ -241,27 +264,27 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 <section id="storia" class="editorial">
   <div class="wrap">
     <div>
-      <h2>Non produciamo jeans.<br>Ne diamo un secondo giro.</h2>
-      <p>AMIDENIM nasce da un'idea semplice: il denim di marca è fatto per durare decenni, ma finisce dimenticato negli armadi. Noi lo intercettiamo e lo trasformiamo in qualcosa che nessuno ha mai indossato prima.</p>
-      <ul class="rivets">
+      <h2 id="edTitle">Non produciamo jeans.<br>Ne diamo un secondo giro.</h2>
+      <p id="edText">AMIDENIM nasce da un'idea semplice: il denim di marca è fatto per durare decenni, ma finisce dimenticato negli armadi. Noi lo intercettiamo e lo trasformiamo in qualcosa che nessuno ha mai indossato prima.</p>
+      <ul class="rivets" id="edBullets">
         <li>Capi base autentici, non riproduzioni</li>
         <li>Lavorazione artigianale, zero produzione in serie</li>
         <li>Ogni pezzo numerato e fotografato com'è</li>
         <li>Meno tessuto nuovo, più denim rimesso in circolo</li>
       </ul>
     </div>
-    <div class="patch"><div><div class="pin">AMI<b>DENIM</b></div><small>RIGENERATO · NUMERATO · UNICO</small></div></div>
+    <div class="patch"><div><div class="pin" id="brandPatch">AMI<b>DENIM</b></div><small>RIGENERATO · NUMERATO · UNICO</small></div></div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
     <div class="top">
-      <div><div class="brand2">AMI<b>DENIM</b></div><p style="margin-top:10px;max-width:34ch;font-size:14px">Denim di marca ridisegnato a mano. Pezzi unici, spediti in tutta Italia.</p></div>
+      <div><div class="brand2" id="brandFooter">AMI<b>DENIM</b></div><p id="footTagline" style="margin-top:10px;max-width:34ch;font-size:14px">Denim di marca ridisegnato a mano. Pezzi unici, spediti in tutta Italia.</p></div>
       <div><h4>Naviga</h4><a href="#collezione">Collezione</a><a href="#processo">Il processo</a><a href="#storia">La storia</a></div>
-      <div><h4>Contatti</h4><a href="mailto:info@amidenim.it">info@amidenim.it</a><a href="#">Instagram</a><a href="#">Spedizioni &amp; resi</a></div>
+      <div><h4>Contatti</h4><a id="footEmail" href="mailto:info@amidenim.it">info@amidenim.it</a><a href="#">Instagram</a><a href="#">Spedizioni &amp; resi</a></div>
     </div>
-    <p class="legal">AMIDENIM personalizza capi originali acquistati legalmente: i marchi citati indicano solo la provenienza del capo di partenza, senza alcun rapporto di affiliazione o sponsorizzazione. © <span id="yr"></span> AMIDENIM · IermanoLab.</p>
+    <p class="legal" id="footLegal">AMIDENIM personalizza capi originali acquistati legalmente: i marchi citati indicano solo la provenienza del capo di partenza, senza alcun rapporto di affiliazione o sponsorizzazione. © <span id="yr"></span> AMIDENIM · IermanoLab.</p>
   </div>
 </footer>
 
@@ -280,7 +303,6 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -291,37 +313,88 @@ function persist(){ try{ localStorage.setItem("amidenim_cart",JSON.stringify(car
 const euro=n=>"€"+Number(n).toFixed(2).replace(".",",");
 const find=id=>PRODUCTS.find(p=>p.id===id);
 
-/* ---------- caricamento da Firebase ---------- */
 function boot(){
+  buildMarquee(DEFAULT_SITE.content.marquee.split(",").map(s=>s.trim()));
   if(firebaseConfigured()){
     try{
       firebase.initializeApp(FIREBASE_CONFIG);
       db=firebase.database();
       Promise.all([
         db.ref(DB_ROOT+"/config").once("value"),
-        db.ref(DB_ROOT+"/products").once("value")
-      ]).then(([cs,ps])=>{
+        db.ref(DB_ROOT+"/products").once("value"),
+        db.ref(DB_ROOT+"/site").once("value")
+      ]).then(([cs,ps,ss])=>{
         const c=cs.val(); if(c){
           CONFIG.PAYPAL_CLIENT_ID=c.paypalClientId||CONFIG.PAYPAL_CLIENT_ID;
           CONFIG.PAYPAL_CURRENCY=c.paypalCurrency||CONFIG.PAYPAL_CURRENCY;
           CONFIG.SHIPPING=c.shipping!=null?c.shipping:CONFIG.SHIPPING;
           CONFIG.FREE_SHIPPING_OVER=c.freeShippingOver!=null?c.freeShippingOver:CONFIG.FREE_SHIPPING_OVER;
-          CONFIG.SHOP_NAME=c.shopName||CONFIG.SHOP_NAME;
-          CONFIG.MAX_DISPLAY=c.maxDisplay||0;
+          CONFIG.SHOP_NAME=c.shopName||CONFIG.SHOP_NAME; CONFIG.MAX_DISPLAY=c.maxDisplay||0;
         }
         const pv=ps.val();
         if(pv && Object.keys(pv).length){
-          let arr=Object.entries(pv).map(([id,p])=>({id,...p}))
-            .filter(p=>p.active!==false).sort((a,b)=>(a.order||0)-(b.order||0));
+          let arr=Object.entries(pv).map(([id,p])=>({id,...p})).filter(p=>p.active!==false).sort((a,b)=>(a.order||0)-(b.order||0));
           if(CONFIG.MAX_DISPLAY>0) arr=arr.slice(0,CONFIG.MAX_DISPLAY);
           PRODUCTS=arr;
         }
+        applySite(mergeSite(ss.val()));
         renderGrid();
-      }).catch(err=>{ console.warn("Firebase non raggiungibile, uso il catalogo di riserva.",err); renderGrid(); });
-    }catch(e){ console.warn(e); renderGrid(); }
-  }else{
-    renderGrid();
-  }
+      }).catch(err=>{ console.warn("Firebase non raggiungibile, uso i default.",err); applySite(DEFAULT_SITE); renderGrid(); });
+    }catch(e){ console.warn(e); applySite(DEFAULT_SITE); renderGrid(); }
+  }else{ applySite(DEFAULT_SITE); renderGrid(); }
+}
+
+/* ---------- applica aspetto/contenuti ---------- */
+function mergeSite(s){
+  s=s||{};
+  return {
+    theme:Object.assign({},DEFAULT_SITE.theme,s.theme||{}),
+    layout:Object.assign({},DEFAULT_SITE.layout,s.layout||{}),
+    content:Object.assign({},DEFAULT_SITE.content,s.content||{})
+  };
+}
+function esc(s){return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function accentFmt(s){return esc(s).replace(/\*([^*]+)\*/g,'<em>$1</em>');}
+function accentNl(s){return esc(s).replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/\n/g,"<br>");}
+function setT(id,v){const e=document.getElementById(id); if(e&&v!=null)e.textContent=v;}
+function setH(id,v){const e=document.getElementById(id); if(e&&v!=null)e.innerHTML=v;}
+function renderBrand(id,brand){const e=document.getElementById(id); if(!e)return; const parts=(brand||"AMIDENIM").split("|"); e.innerHTML=esc(parts[0])+(parts[1]!==undefined?`<b>${esc(parts[1])}</b>`:"");}
+function buildMarquee(list){ const items=(list||[]).filter(Boolean); const h=items.map(t=>`<span>✦ ${esc(t)}</span>`).join(""); document.getElementById("mq").innerHTML=h+h; }
+
+function applySite(site){
+  const t=site.theme, l=site.layout, c=site.content, r=document.documentElement.style;
+  if(t.dark)r.setProperty("--indigo-raw",t.dark);
+  if(t.deep){r.setProperty("--indigo",t.deep);r.setProperty("--indigo-mid",shade(t.deep,34));}
+  if(t.accent){r.setProperty("--copper",t.accent);r.setProperty("--rivet",shade(t.accent,-22));}
+  if(t.accent2)r.setProperty("--copper-bright",t.accent2);
+  if(t.light)r.setProperty("--cream",t.light);
+  if(t.paper)r.setProperty("--paper",t.paper);
+  if(t.text)r.setProperty("--ink",t.text);
+  // contenuti
+  renderBrand("brandHeader",c.brand); renderBrand("brandFooter",c.brand); renderBrand("brandPatch",c.brand);
+  setT("heroEyebrow",c.heroEyebrow); setH("heroTitle",accentFmt(c.heroTitle)); setT("heroLead",c.heroLead);
+  setT("ctaPrimary",c.ctaPrimary); setT("ctaSecondary",c.ctaSecondary);
+  buildMarquee((c.marquee||"").split(",").map(s=>s.trim()));
+  setT("colKicker",c.colKicker); setT("colTitle",c.colTitle); setT("colSub",c.colSub);
+  setT("procKicker",c.procKicker); setT("procTitle",c.procTitle);
+  setT("step1Title",c.step1Title); setT("step1Text",c.step1Text);
+  setT("step2Title",c.step2Title); setT("step2Text",c.step2Text);
+  setT("step3Title",c.step3Title); setT("step3Text",c.step3Text);
+  setH("edTitle",accentNl(c.edTitle)); setT("edText",c.edText);
+  document.getElementById("edBullets").innerHTML=(c.edBullets||"").split("\n").filter(x=>x.trim()).map(x=>`<li>${esc(x.trim())}</li>`).join("");
+  setT("footTagline",c.footTagline);
+  const fe=document.getElementById("footEmail"); if(fe&&c.footEmail){fe.textContent=c.footEmail;fe.href="mailto:"+c.footEmail;}
+  const brandPlain=(c.brand||"AMIDENIM").replace("|","");
+  setT("footLegal",(c.footLegal||"")+" © "+new Date().getFullYear()+" "+brandPlain+" · IermanoLab.");
+  // layout
+  const grid=document.getElementById("grid"); grid.className="grid cols-"+(l.cols||3);
+  document.getElementById("hero").classList.toggle("center",l.heroAlign==="center");
+  document.getElementById("marquee-wrap").style.display=l.showMarquee===false?"none":"";
+  document.getElementById("processo").style.display=l.showProcesso===false?"none":"";
+  document.getElementById("storia").style.display=l.showStoria===false?"none":"";
+  const order=(l.order&&l.order.length)?l.order:["collezione","processo","storia"];
+  const footer=document.querySelector("footer");
+  order.forEach(id=>{const el=document.getElementById(id); if(el)document.body.insertBefore(el,footer);});
 }
 
 /* ---------- SVG denim placeholder ---------- */
@@ -341,19 +414,18 @@ function denimSVG(p){
     <rect width="260" height="325" fill="url(#g_${id})"/><rect width="260" height="325" fill="url(#t_${id})" opacity=".55"/>${ov}
     <g transform="translate(168,232)"><path d="M0 0 h64 v34 l-32 22 l-32 -22 z" fill="${D}" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><path d="M8 12 q24 18 48 0" fill="none" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><circle cx="4" cy="4" r="3.4" fill="#cf7a2e"/></g></svg>`;
 }
-function media(p){ return p.image?`<img src="${p.image}" alt="${p.name||''}">`:denimSVG(p); }
+function media(p){ return p.image?`<img src="${p.image}" alt="${esc(p.name||'')}">`:denimSVG(p); }
 
-/* ---------- catalogo ---------- */
 function renderGrid(){
   document.getElementById("grid").innerHTML = PRODUCTS.map(p=>{
     const inCart=cart.includes(p.id);
     return `<article class="card">
-      <div class="ph"><span class="badge">№ ${p.num||'—'}</span><span class="tag-mod">${p.mod||''}</span>${media(p)}</div>
+      <div class="ph"><span class="badge">№ ${esc(p.num||'—')}</span><span class="tag-mod">${esc(p.mod||'')}</span>${media(p)}</div>
       <div class="body">
-        <div class="base">Base · ${p.base||''}</div>
-        <h3>${p.name||''}</h3>
-        <p class="pdesc">${p.desc||''}</p>
-        <div class="meta"><span class="size">${p.size||''}</span><span class="price">${euro(p.price)} <small>iva incl.</small></span></div>
+        <div class="base">Base · ${esc(p.base||'')}</div>
+        <h3>${esc(p.name||'')}</h3>
+        <p class="pdesc">${esc(p.desc||'')}</p>
+        <div class="meta"><span class="size">${esc(p.size||'')}</span><span class="price">${euro(p.price)} <small>iva incl.</small></span></div>
         <button class="add" ${inCart?'disabled':''} onclick="addToCart('${p.id}')">${inCart?'Già nel carrello':'Aggiungi al carrello'}</button>
       </div>
     </article>`;
@@ -361,7 +433,6 @@ function renderGrid(){
   updateCount();
 }
 
-/* ---------- carrello ---------- */
 function addToCart(id){ if(cart.includes(id))return; cart.push(id); persist(); renderGrid(); renderCart(); openCart(); toast((find(id)?.name||"Capo")+" aggiunto"); }
 function removeFromCart(id){ cart=cart.filter(x=>x!==id); persist(); renderGrid(); renderCart(); }
 function updateCount(){ document.getElementById("cart-count").textContent=cart.length; }
@@ -383,7 +454,7 @@ function renderCart(){
     itemsBox.style.display="block"; co.classList.remove("show");
     itemsBox.innerHTML=cart.map(id=>{const p=find(id);return `<div class="item">
       <div class="thumb">${media(p)}</div>
-      <div class="info"><h4>${p.name}</h4><div class="b">${p.base||''} · ${p.size||''}</div><div class="pr">${euro(p.price)}</div>
+      <div class="info"><h4>${esc(p.name)}</h4><div class="b">${esc(p.base||'')} · ${esc(p.size||'')}</div><div class="pr">${euro(p.price)}</div>
       <button class="rm" onclick="removeFromCart('${p.id}')">Rimuovi</button></div></div>`;}).join("");
   }
   renderSummary();
@@ -398,38 +469,23 @@ function renderSummary(){
 }
 function goCheckout(){ checkoutMode=true; renderCart(); }
 
-/* ---------- checkout: form indirizzi ---------- */
 function renderCheckout(){
   const co=document.getElementById("checkout");
   co.innerHTML=`
     <button class="backlink" onclick="backToCart()">← Torna al carrello</button>
     <h4>Contatti</h4>
-    <div class="f2">
-      <div class="fld"><label>Nome*</label><input id="ck-fn"></div>
-      <div class="fld"><label>Cognome*</label><input id="ck-ln"></div>
-    </div>
-    <div class="f2">
-      <div class="fld"><label>Email*</label><input id="ck-em" type="email"></div>
-      <div class="fld"><label>Telefono</label><input id="ck-ph"></div>
-    </div>
+    <div class="f2"><div class="fld"><label>Nome*</label><input id="ck-fn"></div><div class="fld"><label>Cognome*</label><input id="ck-ln"></div></div>
+    <div class="f2"><div class="fld"><label>Email*</label><input id="ck-em" type="email"></div><div class="fld"><label>Telefono</label><input id="ck-ph"></div></div>
     <h4>Indirizzo di fatturazione</h4>
     <div class="fld"><label>Indirizzo*</label><input id="ck-baddr" placeholder="Via, numero civico"></div>
-    <div class="f3">
-      <div class="fld"><label>Città*</label><input id="ck-bcity"></div>
-      <div class="fld"><label>CAP*</label><input id="ck-bzip"></div>
-      <div class="fld"><label>Prov.</label><input id="ck-bprov" maxlength="2"></div>
-    </div>
+    <div class="f3"><div class="fld"><label>Città*</label><input id="ck-bcity"></div><div class="fld"><label>CAP*</label><input id="ck-bzip"></div><div class="fld"><label>Prov.</label><input id="ck-bprov" maxlength="2"></div></div>
     <div class="fld"><label>Paese*</label><input id="ck-bcountry" value="Italia"></div>
     <label class="chk"><input type="checkbox" id="ck-same" checked onchange="toggleShip()"> Spedisci allo stesso indirizzo</label>
     <div id="ship-fields" style="display:none">
       <h4>Indirizzo di spedizione</h4>
       <div class="fld"><label>Destinatario</label><input id="ck-sname"></div>
       <div class="fld"><label>Indirizzo*</label><input id="ck-saddr"></div>
-      <div class="f3">
-        <div class="fld"><label>Città*</label><input id="ck-scity"></div>
-        <div class="fld"><label>CAP*</label><input id="ck-szip"></div>
-        <div class="fld"><label>Prov.</label><input id="ck-sprov" maxlength="2"></div>
-      </div>
+      <div class="f3"><div class="fld"><label>Città*</label><input id="ck-scity"></div><div class="fld"><label>CAP*</label><input id="ck-szip"></div><div class="fld"><label>Prov.</label><input id="ck-sprov" maxlength="2"></div></div>
       <div class="fld"><label>Paese*</label><input id="ck-scountry" value="Italia"></div>
     </div>
     <div id="paypal-area"></div>
@@ -451,7 +507,7 @@ function onFormChange(){
   const ok=formValid();
   document.getElementById("formhint").classList.toggle("show",!ok);
   const area=document.getElementById("paypal-area");
-  if(area) area.style.opacity=ok?"1":".4", area.style.pointerEvents=ok?"auto":"none";
+  if(area){ area.style.opacity=ok?"1":".4"; area.style.pointerEvents=ok?"auto":"none"; }
 }
 function collectOrder(){
   const same=document.getElementById("ck-same").checked;
@@ -471,7 +527,6 @@ function saveOrder(paypalOrderId){
   return Promise.resolve(false);
 }
 
-/* ---------- PayPal ---------- */
 let paypalLoaded=false,paypalLoading=false;
 function paypalConfigured(){ return CONFIG.PAYPAL_CLIENT_ID && CONFIG.PAYPAL_CLIENT_ID!=="INSERISCI_QUI_IL_TUO_CLIENT_ID"; }
 function loadPayPalSDK(cb){
@@ -509,10 +564,9 @@ function renderPayPal(){
         saveOrder(details.id||data.orderID).finally(()=>{
           cart=[]; persist(); renderGrid();
           document.getElementById("items").style.display="block";
-          document.getElementById("checkout").classList.remove("show");
-          checkoutMode=false;
+          document.getElementById("checkout").classList.remove("show"); checkoutMode=false;
           document.getElementById("drawer-title").textContent="Ordine confermato";
-          document.getElementById("items").innerHTML=`<div class="empty"><strong style="font-size:18px;color:var(--ink)">Ordine confermato ✓</strong><br><br>Grazie${name?(" "+name):""}. Riceverai una conferma via email. Spedizione entro 3 giorni lavorativi.</div>`;
+          document.getElementById("items").innerHTML=`<div class="empty"><strong style="font-size:18px;color:var(--ink)">Ordine confermato ✓</strong><br><br>Grazie${name?(" "+esc(name)):""}. Riceverai una conferma via email. Spedizione entro 3 giorni lavorativi.</div>`;
           document.getElementById("summary").innerHTML="";
           toast("Pagamento completato");
         });
@@ -522,11 +576,9 @@ function renderPayPal(){
   });
 }
 
-/* ---------- misc ---------- */
 let toastT;
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2200);}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCart();});
-(function(){const it=["PEZZI UNICI","SPEDIZIONE IN TUTTA ITALIA","DENIM RIGENERATO","FATTO A MANO","NUMERATO 1/1"];const h=it.map(t=>`<span>✦ ${t}</span>`).join("");document.getElementById("mq").innerHTML=h+h;})();
 document.getElementById("yr").textContent=new Date().getFullYear();
 boot();
 </script>
