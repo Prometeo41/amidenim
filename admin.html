@@ -31,6 +31,31 @@ const SEED_PRODUCTS = [
   { name:"Raw Cut", base:"Carhartt", mod:"cropped", size:"W33 L30", price:109, num:"005/UNICO", wash:"#5a7aa3", desc:"Accorciato e lasciato sfrangiare.", active:true, order:5 },
   { name:"Midnight Fade", base:"Lee", mod:"acid wash", size:"W32 L34", price:115, num:"006/UNICO", wash:"#283a55", desc:"Lavaggio acido custom, schiariture nuvolose.", active:true, order:6 }
 ];
+
+const DEFAULT_SITE = {
+  theme:{ dark:"#141b29", deep:"#1d2a45", accent:"#cf7a2e", accent2:"#ec9646", light:"#f1ece1", paper:"#e7e0d2", text:"#13181f" },
+  layout:{ cols:3, heroAlign:"left", order:["collezione","processo","storia"], showMarquee:true, showProcesso:true, showStoria:true },
+  content:{
+    brand:"AMI|DENIM",
+    heroEyebrow:"Denim custom · pezzi unici",
+    heroTitle:"Jeans di marca, *ridisegnati* a mano.",
+    heroLead:"Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.",
+    ctaPrimary:"Scopri i pezzi", ctaSecondary:"Come funziona",
+    marquee:"PEZZI UNICI, SPEDIZIONE IN TUTTA ITALIA, DENIM RIGENERATO, FATTO A MANO, NUMERATO 1/1",
+    colKicker:"// La collezione", colTitle:"Sei pezzi, sei storie",
+    colSub:"Ogni capo è numerato e venduto in copia singola. Una volta in carrello, è tuo: nessun altro avrà lo stesso.",
+    procKicker:"// Dal capo originale al pezzo unico", procTitle:"Il processo",
+    step1Title:"Selezione", step1Text:"Recuperiamo capi originali di marca, scelti a uno a uno per qualità del tessuto e vestibilità.",
+    step2Title:"Destrutturazione", step2Text:"Scuciture, tagli, lavaggi e trattamenti fatti a mano in laboratorio. Qui il capo perde la sua vita precedente.",
+    step3Title:"Firma", step3Text:"Custom finale: vernici, toppe, ricami a contrasto. Ogni pezzo esce numerato e irripetibile.",
+    edTitle:"Non produciamo jeans.\nNe diamo un secondo giro.",
+    edText:"AMIDENIM nasce da un'idea semplice: il denim di marca è fatto per durare decenni, ma finisce dimenticato negli armadi. Noi lo intercettiamo e lo trasformiamo in qualcosa che nessuno ha mai indossato prima.",
+    edBullets:"Capi base autentici, non riproduzioni\nLavorazione artigianale, zero produzione in serie\nOgni pezzo numerato e fotografato com'è\nMeno tessuto nuovo, più denim rimesso in circolo",
+    footTagline:"Denim di marca ridisegnato a mano. Pezzi unici, spediti in tutta Italia.",
+    footEmail:"info@amidenim.it",
+    footLegal:"AMIDENIM personalizza capi originali acquistati legalmente: i marchi citati indicano solo la provenienza del capo di partenza, senza alcun rapporto di affiliazione o sponsorizzazione."
+  }
+};
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -199,6 +224,8 @@ pre.rules{background:var(--indigo-raw);color:#cfe0f3;padding:14px;border-radius:
 <main id="view-app" style="display:none">
   <div class="tabs">
     <button class="tab active" data-tab="prod" onclick="switchTab('prod')">Prodotti</button>
+    <button class="tab" data-tab="aspetto" onclick="switchTab('aspetto')">Aspetto</button>
+    <button class="tab" data-tab="contenuti" onclick="switchTab('contenuti')">Contenuti</button>
     <button class="tab" data-tab="conf" onclick="switchTab('conf')">PayPal &amp; Config</button>
     <button class="tab" data-tab="ord" onclick="switchTab('ord')">Ordini &amp; Clienti <span class="badge" id="ord-badge">0</span></button>
   </div>
@@ -249,6 +276,104 @@ pre.rules{background:var(--indigo-raw);color:#cfe0f3;padding:14px;border-radius:
       <button class="btn btn-copper" onclick="saveConfig()">Salva configurazione</button>
       <div class="msg ok" id="cf-msg" style="margin-top:14px">Salvato.</div>
       <p style="font-size:13px;color:#6b6a60;margin-top:18px">Vetrina: <a id="shop-link" href="https://prometeo41.github.io/amidenim/" target="_blank" style="color:var(--copper);font-weight:700">prometeo41.github.io/amidenim</a></p>
+    </div>
+  </div>
+
+  <!-- TAB ASPETTO -->
+  <div class="panel" id="panel-aspetto">
+    <div class="card" style="max-width:720px">
+      <div class="sect-title">Colori</div>
+      <div class="sect-sub">Cambiano subito su tutta la vetrina (al ricaricamento della pagina).</div>
+      <div class="grid3">
+        <div class="field"><label>Scuro (header/hero)</label><input type="color" id="th-dark" style="height:42px;padding:4px"></div>
+        <div class="field"><label>Profondo (sfondi blu)</label><input type="color" id="th-deep" style="height:42px;padding:4px"></div>
+        <div class="field"><label>Accento</label><input type="color" id="th-accent" style="height:42px;padding:4px"></div>
+        <div class="field"><label>Accento chiaro</label><input type="color" id="th-accent2" style="height:42px;padding:4px"></div>
+        <div class="field"><label>Sfondo chiaro</label><input type="color" id="th-light" style="height:42px;padding:4px"></div>
+        <div class="field"><label>Sfondo alternativo</label><input type="color" id="th-paper" style="height:42px;padding:4px"></div>
+        <div class="field"><label>Testo</label><input type="color" id="th-text" style="height:42px;padding:4px"></div>
+      </div>
+    </div>
+    <div class="card" style="max-width:720px;margin-top:16px">
+      <div class="sect-title">Layout &amp; posizionamento</div>
+      <div class="sect-sub">Ordine delle sezioni, cosa mostrare e come.</div>
+      <div class="grid3">
+        <div class="field"><label>Colonne prodotti</label><select id="ly-cols"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+        <div class="field"><label>Allineamento hero</label><select id="ly-align"><option value="left">Sinistra</option><option value="center">Centro</option></select></div>
+      </div>
+      <div style="display:flex;gap:22px;flex-wrap:wrap;margin:6px 0 16px">
+        <label class="tog"><input type="checkbox" id="ly-marquee"><span class="sw"></span><span>Nastro scorrevole</span></label>
+        <label class="tog"><input type="checkbox" id="ly-processo"><span class="sw"></span><span>Sezione “Il processo”</span></label>
+        <label class="tog"><input type="checkbox" id="ly-storia"><span class="sw"></span><span>Sezione “La storia”</span></label>
+      </div>
+      <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#54534a;margin-bottom:8px">Ordine sezioni</label>
+      <div id="order-list" style="max-width:380px"></div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-copper" onclick="saveSite()">Salva aspetto</button>
+      <button class="btn btn-ghost" onclick="resetSite()">Ripristina default</button>
+      <a class="btn btn-dark" href="https://prometeo41.github.io/amidenim/" target="_blank" style="text-decoration:none">Apri vetrina ↗</a>
+    </div>
+  </div>
+
+  <!-- TAB CONTENUTI -->
+  <div class="panel" id="panel-contenuti">
+    <div class="card" style="max-width:760px">
+      <div class="sect-title">Testi del sito</div>
+      <div class="sect-sub">Suggerimento: nel titolo hero metti la parola da evidenziare tra *asterischi*. Nel nome marca usa “|” per separare la parte in colore (es. AMI|DENIM).</div>
+
+      <div class="field"><label>Nome marca (logo)</label><input type="text" id="ct-brand"></div>
+
+      <h4 style="font-family:'Anton';font-weight:400;text-transform:uppercase;margin:18px 0 8px">Hero</h4>
+      <div class="field"><label>Sopratitolo</label><input type="text" id="ct-heroEyebrow"></div>
+      <div class="field"><label>Titolo (usa *parola* per l'accento)</label><input type="text" id="ct-heroTitle"></div>
+      <div class="field"><label>Sottotitolo</label><textarea id="ct-heroLead"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Bottone primario</label><input type="text" id="ct-ctaPrimary"></div>
+        <div class="field"><label>Bottone secondario</label><input type="text" id="ct-ctaSecondary"></div>
+      </div>
+      <div class="field"><label>Nastro scorrevole (voci separate da virgola)</label><input type="text" id="ct-marquee"></div>
+
+      <h4 style="font-family:'Anton';font-weight:400;text-transform:uppercase;margin:18px 0 8px">Collezione</h4>
+      <div class="grid2">
+        <div class="field"><label>Eyebrow</label><input type="text" id="ct-colKicker"></div>
+        <div class="field"><label>Titolo</label><input type="text" id="ct-colTitle"></div>
+      </div>
+      <div class="field"><label>Sottotitolo</label><textarea id="ct-colSub"></textarea></div>
+
+      <h4 style="font-family:'Anton';font-weight:400;text-transform:uppercase;margin:18px 0 8px">Il processo</h4>
+      <div class="grid2">
+        <div class="field"><label>Eyebrow</label><input type="text" id="ct-procKicker"></div>
+        <div class="field"><label>Titolo</label><input type="text" id="ct-procTitle"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Step 1 — titolo</label><input type="text" id="ct-step1Title"></div>
+        <div class="field"><label>Step 1 — testo</label><input type="text" id="ct-step1Text"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Step 2 — titolo</label><input type="text" id="ct-step2Title"></div>
+        <div class="field"><label>Step 2 — testo</label><input type="text" id="ct-step2Text"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Step 3 — titolo</label><input type="text" id="ct-step3Title"></div>
+        <div class="field"><label>Step 3 — testo</label><input type="text" id="ct-step3Text"></div>
+      </div>
+
+      <h4 style="font-family:'Anton';font-weight:400;text-transform:uppercase;margin:18px 0 8px">La storia</h4>
+      <div class="field"><label>Titolo (a capo = nuova riga)</label><textarea id="ct-edTitle"></textarea></div>
+      <div class="field"><label>Testo</label><textarea id="ct-edText"></textarea></div>
+      <div class="field"><label>Punti elenco (uno per riga)</label><textarea id="ct-edBullets" style="min-height:90px"></textarea></div>
+
+      <h4 style="font-family:'Anton';font-weight:400;text-transform:uppercase;margin:18px 0 8px">Footer</h4>
+      <div class="field"><label>Frase footer</label><input type="text" id="ct-footTagline"></div>
+      <div class="field"><label>Email contatto</label><input type="text" id="ct-footEmail"></div>
+      <div class="field"><label>Testo legale</label><textarea id="ct-footLegal"></textarea></div>
+
+      <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-copper" onclick="saveSite()">Salva contenuti</button>
+        <button class="btn btn-ghost" onclick="resetSite()">Ripristina default</button>
+      </div>
+      <div class="msg ok" id="site-msg" style="margin-top:14px">Salvato. Ricarica la vetrina per vedere le modifiche.</div>
     </div>
   </div>
 
@@ -333,6 +458,7 @@ const RULES = `{
     "${DB_ROOT}": {
       "config":   { ".read": true, ".write": "auth != null" },
       "products": { ".read": true, ".write": "auth != null" },
+      "site":     { ".read": true, ".write": "auth != null" },
       "orders": {
         ".read": "auth != null",
         ".indexOn": ["createdAt"],
@@ -386,7 +512,55 @@ function loadAll(){
   db.ref(DB_ROOT+"/orders").on("value",s=>{ orders=s.val()||{}; renderOrders(); updateBadge(); });
   db.ref(DB_ROOT+"/config").once("value").then(s=>{ const c=s.val()||{}; fillConfig(c);
     document.getElementById("maxDisplay").value = c.maxDisplay||0; });
+  db.ref(DB_ROOT+"/site").once("value").then(s=>{ fillSite(mergeSite(s.val())); });
 }
+
+/* ====================== SITO (aspetto + contenuti) ====================== */
+let siteOrder = DEFAULT_SITE.layout.order.slice();
+const SECTION_LABELS = { collezione:"Collezione", processo:"Il processo", storia:"La storia" };
+function mergeSite(s){ s=s||{}; return {
+  theme:Object.assign({},DEFAULT_SITE.theme,s.theme||{}),
+  layout:Object.assign({},DEFAULT_SITE.layout,s.layout||{}),
+  content:Object.assign({},DEFAULT_SITE.content,s.content||{}) }; }
+function setVal(id,v){ const e=document.getElementById(id); if(e!=null) e.value=(v==null?"":v); }
+function setChk(id,v){ const e=document.getElementById(id); if(e!=null) e.checked=!!v; }
+function fillSite(site){
+  const t=site.theme,l=site.layout,c=site.content;
+  setVal("th-dark",t.dark);setVal("th-deep",t.deep);setVal("th-accent",t.accent);setVal("th-accent2",t.accent2);
+  setVal("th-light",t.light);setVal("th-paper",t.paper);setVal("th-text",t.text);
+  setVal("ly-cols",String(l.cols||3));setVal("ly-align",l.heroAlign||"left");
+  setChk("ly-marquee",l.showMarquee!==false);setChk("ly-processo",l.showProcesso!==false);setChk("ly-storia",l.showStoria!==false);
+  siteOrder=(l.order&&l.order.length)?l.order.slice():DEFAULT_SITE.layout.order.slice();
+  renderOrderList();
+  Object.keys(DEFAULT_SITE.content).forEach(k=>setVal("ct-"+k,c[k]));
+}
+function renderOrderList(){
+  const box=document.getElementById("order-list"); if(!box)return;
+  box.innerHTML=siteOrder.map((id,i)=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--cream);border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin-bottom:6px">
+      <span style="font-weight:700">${i+1}. ${SECTION_LABELS[id]||id}</span>
+      <span>
+        <button class="btn btn-ghost btn-sm" ${i===0?'disabled':''} onclick="moveSection(${i},-1)">▲</button>
+        <button class="btn btn-ghost btn-sm" ${i===siteOrder.length-1?'disabled':''} onclick="moveSection(${i},1)">▼</button>
+      </span>
+    </div>`).join("");
+}
+function moveSection(i,dir){ const j=i+dir; if(j<0||j>=siteOrder.length)return; const a=siteOrder.slice(); [a[i],a[j]]=[a[j],a[i]]; siteOrder=a; renderOrderList(); }
+function gatherSite(){
+  const content={}; Object.keys(DEFAULT_SITE.content).forEach(k=>{ content[k]=(document.getElementById("ct-"+k)?.value)??DEFAULT_SITE.content[k]; });
+  return {
+    theme:{ dark:document.getElementById("th-dark").value, deep:document.getElementById("th-deep").value, accent:document.getElementById("th-accent").value, accent2:document.getElementById("th-accent2").value, light:document.getElementById("th-light").value, paper:document.getElementById("th-paper").value, text:document.getElementById("th-text").value },
+    layout:{ cols:Number(document.getElementById("ly-cols").value)||3, heroAlign:document.getElementById("ly-align").value, order:siteOrder.slice(), showMarquee:document.getElementById("ly-marquee").checked, showProcesso:document.getElementById("ly-processo").checked, showStoria:document.getElementById("ly-storia").checked },
+    content
+  };
+}
+function saveSite(){
+  db.ref(DB_ROOT+"/site").set(gatherSite()).then(()=>{
+    const m=document.getElementById("site-msg"); if(m){m.classList.add("show"); setTimeout(()=>m.classList.remove("show"),3000);}
+    toast("Sito salvato — ricarica la vetrina");
+  }).catch(e=>toast("Errore: "+e.message));
+}
+function resetSite(){ if(confirm("Ripristinare colori, layout e testi ai valori di default?")){ fillSite(DEFAULT_SITE); saveSite(); } }
 
 /* ====================== PRODOTTI ====================== */
 function prodArray(){
