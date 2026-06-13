@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMIDENIM · Backoffice</title>
+
+<!-- ============================================================= -->
+<!--  CONFIGURAZIONE FIREBASE  (uguale anche in index.html)        -->
+<!--  Console Firebase -> Impostazioni progetto -> Le tue app web  -->
+<!-- ============================================================= -->
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "INSERISCI",
+  authDomain: "INSERISCI.firebaseapp.com",
+  databaseURL: "https://INSERISCI-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "INSERISCI",
+  storageBucket: "INSERISCI.appspot.com",
+  messagingSenderId: "INSERISCI",
+  appId: "INSERISCI"
+};
+const DB_ROOT = "amidenim"; // nodo radice nel database
+function firebaseConfigured(){ return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "INSERISCI"; }
+
+// Prodotti di esempio (per il pulsante "Importa esempi" al primo avvio)
+const SEED_PRODUCTS = [
+  { name:"Breakwater", base:"Levi's 501", mod:"distressed", size:"W32 L32", price:119, num:"001/UNICO", wash:"#3f5d83", desc:"Strappi a mano sulle ginocchia, baffature sbiancate, orlo grezzo.", active:true, order:1 },
+  { name:"Inkblot", base:"Diesel Thommer", mod:"painted", size:"W30 L32", price:145, num:"002/UNICO", wash:"#202a40", desc:"Vernice tessile applicata e screpolata a mano.", active:true, order:2 },
+  { name:"Patchwork No.7", base:"Wrangler", mod:"patched", size:"W34 L34", price:129, num:"003/UNICO", wash:"#4a6790", desc:"Sette toppe in denim di recupero, cuciti a contrasto.", active:true, order:3 },
+  { name:"Stitchline", base:"Levi's 511", mod:"embroidered", size:"W31 L32", price:139, num:"004/UNICO", wash:"#324a6e", desc:"Ricamo a mano lungo la cucitura esterna.", active:true, order:4 },
+  { name:"Raw Cut", base:"Carhartt", mod:"cropped", size:"W33 L30", price:109, num:"005/UNICO", wash:"#5a7aa3", desc:"Accorciato e lasciato sfrangiare.", active:true, order:5 },
+  { name:"Midnight Fade", base:"Lee", mod:"acid wash", size:"W32 L34", price:115, num:"006/UNICO", wash:"#283a55", desc:"Lavaggio acido custom, schiariture nuvolose.", active:true, order:6 }
+];
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --indigo-raw:#141b29; --indigo:#1d2a45; --indigo-mid:#33507e;
+  --chambray:#9fbfdc; --cream:#f1ece1; --paper:#e7e0d2;
+  --copper:#cf7a2e; --copper-bright:#ec9646; --rivet:#a8662f;
+  --ink:#13181f; --line:rgba(20,27,41,.16);
+  --ok:#2e7d52; --warn:#b6532b; --danger:#a8323a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Archivo",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px}
+.mono{font-family:"Space Mono",monospace}
+
+/* header */
+header{background:var(--indigo-raw);color:var(--cream);position:sticky;top:0;z-index:40;border-bottom:2px solid rgba(207,122,46,.45)}
+.hbar{max-width:1100px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:"Anton",sans-serif;font-size:26px;letter-spacing:.05em;display:flex;align-items:baseline;gap:3px}
+.logo b{color:var(--copper-bright);font-weight:400}
+.logo .tag{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.22em;color:var(--chambray);margin-left:10px;text-transform:uppercase}
+.huser{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--chambray)}
+.btn{border:none;border-radius:2px;font-weight:700;font-size:13px;letter-spacing:.03em;padding:10px 16px;transition:.15s}
+.btn-copper{background:var(--copper);color:#1a1206}.btn-copper:hover{background:var(--copper-bright)}
+.btn-dark{background:var(--indigo);color:var(--cream)}.btn-dark:hover{background:var(--indigo-mid)}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}.btn-ghost:hover{border-color:var(--copper)}
+.btn-danger{background:transparent;border:1.5px solid var(--danger);color:var(--danger)}.btn-danger:hover{background:var(--danger);color:#fff}
+.btn-sm{padding:7px 12px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+main{max-width:1100px;margin:0 auto;padding:24px 20px 80px}
+
+/* tabs */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:26px;flex-wrap:wrap}
+.tab{background:none;border:none;padding:13px 18px;font-weight:700;font-size:14px;letter-spacing:.02em;color:#6b6a60;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.active{color:var(--ink);border-color:var(--copper)}
+.tab .badge{background:var(--copper);color:#1a1206;font-family:"Space Mono",monospace;font-size:11px;padding:1px 7px;border-radius:10px;margin-left:6px}
+.panel{display:none}.panel.active{display:block}
+
+/* cards / forms */
+.card{background:var(--cream);border:1px solid var(--line);border-radius:5px;padding:20px}
+.sect-title{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:22px;letter-spacing:.02em;margin-bottom:4px}
+.sect-sub{font-size:13.5px;color:#6b6a60;margin-bottom:18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#54534a;margin-bottom:5px}
+.field input[type=text],.field input[type=number],.field input[type=email],.field input[type=password],.field select,.field textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--copper)}
+.field textarea{resize:vertical;min-height:64px}
+.field .hint{font-size:12px;color:#8a877c;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+/* product list */
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:18px}
+.pcard{background:var(--cream);border:1px solid var(--line);border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
+.pcard.off{opacity:.55}
+.pthumb{aspect-ratio:4/5;background:var(--indigo);position:relative}
+.pthumb img,.pthumb svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pchip{position:absolute;top:8px;left:8px;font-family:"Space Mono",monospace;font-size:10px;font-weight:700;background:var(--indigo-raw);color:var(--copper-bright);padding:3px 7px;border-radius:2px}
+.pbody{padding:13px;display:flex;flex-direction:column;gap:5px}
+.pbody h4{font-family:"Anton",sans-serif;font-weight:400;font-size:19px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.pbody .pb-base{font-family:"Space Mono",monospace;font-size:11px;color:#6b6a60;text-transform:uppercase}
+.pbody .pb-price{font-family:"Space Mono",monospace;font-weight:700}
+
+/* toggle */
+.tog{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#54534a;cursor:pointer}
+.tog input{display:none}
+.tog .sw{width:38px;height:21px;background:#c4bdae;border-radius:20px;position:relative;transition:.2s}
+.tog .sw::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s}
+.tog input:checked + .sw{background:var(--ok)}
+.tog input:checked + .sw::after{transform:translateX(17px)}
+
+/* orders table */
+.otable{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--cream);border-radius:5px;overflow:hidden}
+.otable th{text-align:left;background:var(--indigo-raw);color:var(--cream);padding:11px 12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.otable td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.otable tr:hover{background:#fbf8f1}
+.statepill{font-family:"Space Mono",monospace;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;text-transform:uppercase;letter-spacing:.05em}
+.s-nuovo{background:#dcecff;color:#1d4f87}.s-spedito{background:#dcf3e6;color:#1f6b41}.s-annullato{background:#f3dcdc;color:#8a2a31}
+.odetail{background:#fbf8f1;font-size:13px}
+.odetail .ogrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:6px 4px 10px}
+.odetail h5{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--copper);margin-bottom:6px}
+.odetail .addr{color:#3a392f;line-height:1.6}
+.oitems{margin-top:4px}.oitems div{display:flex;justify-content:space-between;padding:2px 0;font-family:"Space Mono",monospace;font-size:12px}
+
+/* login / setup */
+.center-wrap{min-height:calc(100vh - 62px);display:grid;place-items:center;padding:24px}
+.loginbox{width:min(420px,100%);background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:30px;border-top:4px solid var(--copper)}
+.loginbox h2{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:24px;margin-bottom:4px}
+.loginbox p.s{font-size:13px;color:#6b6a60;margin-bottom:20px}
+.msg{font-size:13px;padding:10px 12px;border-radius:3px;margin-top:12px;display:none}
+.msg.show{display:block}
+.msg.err{background:#f6e0e0;color:#8a2a31}.msg.ok{background:#dff1e6;color:#1f6b41}
+.setupbox{width:min(640px,100%);background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:30px}
+.setupbox h2{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:24px;margin-bottom:10px}
+.setupbox ol{margin:14px 0 0 18px}.setupbox li{margin-bottom:9px;font-size:14px}
+.setupbox code{background:#efe4cf;padding:1px 6px;border-radius:3px;font-family:"Space Mono",monospace;font-size:12.5px}
+pre.rules{background:var(--indigo-raw);color:#cfe0f3;padding:14px;border-radius:5px;font-family:"Space Mono",monospace;font-size:11.5px;overflow-x:auto;margin-top:10px;line-height:1.45}
+
+.loader{display:none;text-align:center;padding:40px;color:#6b6a60}
+.loader.show{display:block}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--indigo-raw);color:var(--cream);padding:12px 20px;border-radius:3px;font-size:14px;font-weight:600;opacity:0;visibility:hidden;transition:.3s;z-index:200;border-left:4px solid var(--copper)}
+.toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,21,33,.6);display:none;place-items:center;z-index:120;padding:20px}
+.modal-bg.show{display:grid}
+.modal{background:var(--paper);border-radius:6px;width:min(640px,100%);max-height:90vh;overflow-y:auto;padding:26px}
+.modal h3{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:22px;margin-bottom:16px}
+.imgdrop{border:2px dashed var(--copper);border-radius:5px;padding:16px;text-align:center;background:#fff7ec;cursor:pointer}
+.imgdrop:hover{background:#fbecd6}
+.imgprev{width:120px;aspect-ratio:4/5;object-fit:cover;border-radius:4px;margin:10px auto 0;display:none}
+@media(max-width:680px){.grid2,.grid3{grid-template-columns:1fr}.odetail .ogrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbar">
+    <div class="logo">AMI<b>DENIM</b><span class="tag">Backoffice</span></div>
+    <div class="huser" id="huser" style="display:none">
+      <span id="who"></span>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Esci</button>
+    </div>
+  </div>
+</header>
+
+<!-- SETUP (firebase non configurato) -->
+<div id="view-setup" class="center-wrap" style="display:none">
+  <div class="setupbox">
+    <h2>Configura Firebase</h2>
+    <p style="font-size:14px;color:#54534a">Il backoffice e la vetrina usano Firebase per database e login. Una volta sola:</p>
+    <ol>
+      <li>Vai su <code>console.firebase.google.com</code> → <b>Crea progetto</b> (es. <code>amidenim</code>).</li>
+      <li>Menu <b>Build → Realtime Database</b> → <b>Crea database</b> → zona <b>europe-west1</b> → modalità <b>bloccata</b>.</li>
+      <li>Menu <b>Build → Authentication</b> → <b>Inizia</b> → abilita <b>Email/Password</b>. Poi tab <b>Users → Aggiungi utente</b>: crea il tuo account admin (email + password).</li>
+      <li><b>Impostazioni progetto</b> (ingranaggio) → in fondo <b>Le tue app</b> → icona <b>web &lt;/&gt;</b> → registra l'app → copia l'oggetto <code>firebaseConfig</code>.</li>
+      <li>Incolla quei valori dentro <code>FIREBASE_CONFIG</code> in cima a <code>admin.html</code> <b>e</b> <code>index.html</code> (identici).</li>
+      <li>In Realtime Database → tab <b>Regole</b>, incolla le regole qui sotto e pubblica.</li>
+    </ol>
+    <pre class="rules" id="rulesblock"></pre>
+    <button class="btn btn-copper btn-sm" style="margin-top:12px" onclick="copyRules()">Copia le regole</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="view-login" class="center-wrap" style="display:none">
+  <div class="loginbox">
+    <h2>Accesso backoffice</h2>
+    <p class="s">Usa l'email e la password dell'utente admin creato in Firebase Authentication.</p>
+    <div class="field"><label>Email</label><input type="email" id="li-email" placeholder="admin@amidenim.it" autocomplete="username"></div>
+    <div class="field"><label>Password</label><input type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-copper" style="width:100%;padding:13px" onclick="doLogin()">Entra</button>
+    <div class="msg err" id="li-msg"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<main id="view-app" style="display:none">
+  <div class="tabs">
+    <button class="tab active" data-tab="prod" onclick="switchTab('prod')">Prodotti</button>
+    <button class="tab" data-tab="conf" onclick="switchTab('conf')">PayPal &amp; Config</button>
+    <button class="tab" data-tab="ord" onclick="switchTab('ord')">Ordini &amp; Clienti <span class="badge" id="ord-badge">0</span></button>
+  </div>
+
+  <!-- TAB PRODOTTI -->
+  <div class="panel active" id="panel-prod">
+    <div class="card" style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="sect-title">Catalogo</div>
+          <div class="sect-sub">Aggiungi, modifica e scegli quali pezzi esporre in vetrina.</div>
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-sm" id="seed-btn" onclick="importSeed()">Importa esempi</button>
+          <button class="btn btn-copper" onclick="openProduct()">+ Nuovo prodotto</button>
+        </div>
+      </div>
+      <div class="field" style="max-width:320px;margin-top:16px;margin-bottom:0">
+        <label>Massimo prodotti in vetrina (0 = tutti gli attivi)</label>
+        <div style="display:flex;gap:8px">
+          <input type="number" id="maxDisplay" min="0" value="0" style="max-width:120px">
+          <button class="btn btn-dark btn-sm" onclick="saveMaxDisplay()">Salva</button>
+        </div>
+      </div>
+    </div>
+    <div class="loader show" id="prod-loader">Carico i prodotti…</div>
+    <div class="plist" id="plist"></div>
+    <p id="prod-empty" style="display:none;color:#6b6a60;text-align:center;padding:30px">Nessun prodotto. Usa “Importa esempi” o “Nuovo prodotto”.</p>
+  </div>
+
+  <!-- TAB CONFIG -->
+  <div class="panel" id="panel-conf">
+    <div class="card" style="max-width:620px">
+      <div class="sect-title">PayPal &amp; spedizione</div>
+      <div class="sect-sub">Configurato qui, vale subito sulla vetrina. Niente più modifiche al codice.</div>
+      <div class="field">
+        <label>PayPal Client ID</label>
+        <input type="text" id="cf-ppid" placeholder="incolla il Client ID live di PayPal">
+        <div class="hint">developer.paypal.com → Apps &amp; Credentials → app <b>Live</b>.</div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Valuta</label>
+          <select id="cf-cur"><option>EUR</option><option>USD</option><option>GBP</option></select></div>
+        <div class="field"><label>Spedizione (€)</label><input type="number" id="cf-ship" step="0.01" value="8.90"></div>
+        <div class="field"><label>Gratis sopra (€)</label><input type="number" id="cf-free" step="1" value="200"></div>
+      </div>
+      <div class="field"><label>Nome shop</label><input type="text" id="cf-name" value="AMIDENIM"></div>
+      <button class="btn btn-copper" onclick="saveConfig()">Salva configurazione</button>
+      <div class="msg ok" id="cf-msg" style="margin-top:14px">Salvato.</div>
+      <p style="font-size:13px;color:#6b6a60;margin-top:18px">Vetrina: <a id="shop-link" href="https://prometeo41.github.io/amidenim/" target="_blank" style="color:var(--copper);font-weight:700">prometeo41.github.io/amidenim</a></p>
+    </div>
+  </div>
+
+  <!-- TAB ORDINI -->
+  <div class="panel" id="panel-ord">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div>
+        <div class="sect-title">Ordini &amp; clienti</div>
+        <div class="sect-sub">Anagrafica con indirizzi di fatturazione e spedizione.</div>
+      </div>
+      <div class="row-actions">
+        <select id="ord-filter" onchange="renderOrders()" style="padding:8px 10px;border:1.5px solid var(--line);border-radius:3px">
+          <option value="">Tutti gli stati</option>
+          <option value="nuovo">Nuovi</option>
+          <option value="spedito">Spediti</option>
+          <option value="annullato">Annullati</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Esporta CSV</button>
+      </div>
+    </div>
+    <div class="loader show" id="ord-loader">Carico gli ordini…</div>
+    <div style="overflow-x:auto"><table class="otable" id="otable" style="display:none">
+      <thead><tr><th>Data</th><th>Cliente</th><th>Email</th><th>Totale</th><th>Stato</th><th></th></tr></thead>
+      <tbody id="otbody"></tbody>
+    </table></div>
+    <p id="ord-empty" style="display:none;color:#6b6a60;text-align:center;padding:30px">Ancora nessun ordine.</p>
+  </div>
+</main>
+
+<!-- MODAL PRODOTTO -->
+<div class="modal-bg" id="prod-modal">
+  <div class="modal">
+    <h3 id="pm-title">Nuovo prodotto</h3>
+    <input type="hidden" id="pm-id">
+    <div class="grid2">
+      <div class="field"><label>Nome</label><input type="text" id="pm-name" placeholder="Breakwater"></div>
+      <div class="field"><label>Capo base (marca)</label><input type="text" id="pm-base" placeholder="Levi's 501"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Modifica</label>
+        <select id="pm-mod">
+          <option>distressed</option><option>painted</option><option>patched</option>
+          <option>embroidered</option><option>cropped</option><option>acid wash</option><option>altro</option>
+        </select></div>
+      <div class="field"><label>Taglia</label><input type="text" id="pm-size" placeholder="W32 L32"></div>
+      <div class="field"><label>Prezzo (€)</label><input type="number" id="pm-price" step="1" placeholder="119"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Numero (es. 001/UNICO)</label><input type="text" id="pm-num" placeholder="001/UNICO"></div>
+      <div class="field"><label>Colore denim</label><input type="color" id="pm-wash" value="#33507e" style="height:42px;padding:4px"></div>
+      <div class="field"><label>Ordine in vetrina</label><input type="number" id="pm-order" value="1"></div>
+    </div>
+    <div class="field"><label>Descrizione</label><textarea id="pm-desc" placeholder="Strappi a mano, baffature…"></textarea></div>
+    <div class="field">
+      <label>Foto del capo</label>
+      <div class="imgdrop" onclick="document.getElementById('pm-file').click()">
+        Tocca per caricare una foto (verrà ridimensionata in automatico)
+      </div>
+      <input type="file" id="pm-file" accept="image/*" style="display:none" onchange="onPhoto(event)">
+      <img id="pm-prev" class="imgprev" alt="">
+      <div class="hint">Niente foto = al suo posto compare un’illustrazione denim generata.</div>
+    </div>
+    <label class="tog" style="margin:6px 0 16px"><input type="checkbox" id="pm-active" checked><span class="sw"></span><span>Esponi in vetrina</span></label>
+    <div class="row-actions" style="justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeProduct()">Annulla</button>
+      <button class="btn btn-copper" id="pm-save" onclick="saveProduct()">Salva prodotto</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+/* ---------- regole consigliate (mostrate nel setup) ---------- */
+const RULES = `{
+  "rules": {
+    "${DB_ROOT}": {
+      "config":   { ".read": true, ".write": "auth != null" },
+      "products": { ".read": true, ".write": "auth != null" },
+      "orders": {
+        ".read": "auth != null",
+        ".indexOn": ["createdAt"],
+        "$oid": { ".write": "auth != null || (!data.exists() && newData.exists())" }
+      }
+    }
+  }
+}`;
+document.getElementById("rulesblock").textContent = RULES;
+function copyRules(){ navigator.clipboard.writeText(RULES).then(()=>toast("Regole copiate")); }
+
+/* ---------- stato ---------- */
+let db=null, auth=null, products={}, orders={};
+
+function show(view){
+  ["setup","login","app"].forEach(v=>document.getElementById("view-"+v).style.display="none");
+  document.getElementById("view-"+view).style.display = view==="app" ? "block":"";
+  document.getElementById("huser").style.display = view==="app" ? "flex":"none";
+}
+
+/* ---------- init ---------- */
+if(!firebaseConfigured()){
+  show("setup");
+}else{
+  firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth(); db = firebase.database();
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      document.getElementById("who").textContent = user.email;
+      show("app"); loadAll();
+    }else{ show("login"); }
+  });
+}
+
+/* ---------- auth ---------- */
+function doLogin(){
+  const email=document.getElementById("li-email").value.trim();
+  const pass=document.getElementById("li-pass").value;
+  const msg=document.getElementById("li-msg"); msg.classList.remove("show");
+  auth.signInWithEmailAndPassword(email,pass).catch(e=>{
+    msg.textContent = e.code==="auth/invalid-credential" ? "Email o password errate." : ("Errore: "+e.message);
+    msg.classList.add("show");
+  });
+}
+function doLogout(){ auth.signOut(); }
+document.getElementById("li-pass")?.addEventListener("keydown",e=>{ if(e.key==="Enter") doLogin(); });
+
+/* ---------- load ---------- */
+function loadAll(){
+  db.ref(DB_ROOT+"/products").on("value",s=>{ products=s.val()||{}; renderProducts(); });
+  db.ref(DB_ROOT+"/orders").on("value",s=>{ orders=s.val()||{}; renderOrders(); updateBadge(); });
+  db.ref(DB_ROOT+"/config").once("value").then(s=>{ const c=s.val()||{}; fillConfig(c);
+    document.getElementById("maxDisplay").value = c.maxDisplay||0; });
+}
+
+/* ====================== PRODOTTI ====================== */
+function prodArray(){
+  return Object.entries(products).map(([id,p])=>({id,...p})).sort((a,b)=>(a.order||0)-(b.order||0));
+}
+function renderProducts(){
+  document.getElementById("prod-loader").classList.remove("show");
+  const list=prodArray();
+  document.getElementById("prod-empty").style.display = list.length?"none":"block";
+  document.getElementById("seed-btn").style.display = list.length?"none":"inline-block";
+  document.getElementById("plist").innerHTML = list.map(p=>`
+    <div class="pcard ${p.active?'':'off'}">
+      <div class="pthumb">
+        <span class="pchip">№ ${p.num||'—'}</span>
+        ${p.image?`<img src="${p.image}" alt="">`:denimSVG(p)}
+      </div>
+      <div class="pbody">
+        <div class="pb-base">${p.base||''} · ${p.mod||''}</div>
+        <h4>${p.name||'—'}</h4>
+        <div class="pb-price">€${Number(p.price||0).toFixed(2)} · ${p.size||''}</div>
+        <label class="tog" style="margin-top:6px">
+          <input type="checkbox" ${p.active?'checked':''} onchange="toggleActive('${p.id}',this.checked)">
+          <span class="sw"></span><span>In vetrina</span></label>
+        <div class="row-actions" style="margin-top:8px">
+          <button class="btn btn-ghost btn-sm" onclick="openProduct('${p.id}')">Modifica</button>
+          <button class="btn btn-danger btn-sm" onclick="delProduct('${p.id}','${(p.name||'').replace(/'/g,"")}')">Elimina</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+function toggleActive(id,val){ db.ref(`${DB_ROOT}/products/${id}/active`).set(val); }
+function delProduct(id,name){ if(confirm(`Eliminare "${name}"?`)) db.ref(`${DB_ROOT}/products/${id}`).remove().then(()=>toast("Prodotto eliminato")); }
+
+let photoData=null;
+function openProduct(id){
+  photoData=null;
+  const m=document.getElementById("prod-modal");
+  const prev=document.getElementById("pm-prev"); prev.style.display="none";
+  if(id && products[id]){
+    const p=products[id];
+    document.getElementById("pm-title").textContent="Modifica prodotto";
+    document.getElementById("pm-id").value=id;
+    document.getElementById("pm-name").value=p.name||"";
+    document.getElementById("pm-base").value=p.base||"";
+    document.getElementById("pm-mod").value=p.mod||"distressed";
+    document.getElementById("pm-size").value=p.size||"";
+    document.getElementById("pm-price").value=p.price||"";
+    document.getElementById("pm-num").value=p.num||"";
+    document.getElementById("pm-wash").value=p.wash||"#33507e";
+    document.getElementById("pm-order").value=p.order||1;
+    document.getElementById("pm-desc").value=p.desc||"";
+    document.getElementById("pm-active").checked=p.active!==false;
+    if(p.image){ photoData=p.image; prev.src=p.image; prev.style.display="block"; }
+  }else{
+    document.getElementById("pm-title").textContent="Nuovo prodotto";
+    ["pm-id","pm-name","pm-base","pm-size","pm-price","pm-num","pm-desc"].forEach(i=>document.getElementById(i).value="");
+    document.getElementById("pm-mod").value="distressed";
+    document.getElementById("pm-wash").value="#33507e";
+    document.getElementById("pm-order").value=(prodArray().length+1);
+    document.getElementById("pm-active").checked=true;
+  }
+  m.classList.add("show");
+}
+function closeProduct(){ document.getElementById("prod-modal").classList.remove("show"); }
+function onPhoto(e){
+  const file=e.target.files[0]; if(!file) return;
+  resizeImage(file,1000,0.82,dataUrl=>{
+    photoData=dataUrl;
+    const prev=document.getElementById("pm-prev"); prev.src=dataUrl; prev.style.display="block";
+  });
+}
+function saveProduct(){
+  const id=document.getElementById("pm-id").value;
+  const data={
+    name:document.getElementById("pm-name").value.trim(),
+    base:document.getElementById("pm-base").value.trim(),
+    mod:document.getElementById("pm-mod").value,
+    size:document.getElementById("pm-size").value.trim(),
+    price:Number(document.getElementById("pm-price").value)||0,
+    num:document.getElementById("pm-num").value.trim(),
+    wash:document.getElementById("pm-wash").value,
+    order:Number(document.getElementById("pm-order").value)||1,
+    desc:document.getElementById("pm-desc").value.trim(),
+    active:document.getElementById("pm-active").checked
+  };
+  if(!data.name){ toast("Inserisci almeno il nome"); return; }
+  if(photoData) data.image=photoData; else if(id && products[id] && products[id].image===undefined){} 
+  if(photoData===null && id && products[id] && products[id].image){ data.image=products[id].image; }
+  const ref = id ? db.ref(`${DB_ROOT}/products/${id}`) : db.ref(`${DB_ROOT}/products`).push();
+  const op = id ? ref.set(data) : ref.set(data);
+  op.then(()=>{ closeProduct(); toast(id?"Prodotto aggiornato":"Prodotto creato"); });
+}
+function importSeed(){
+  const updates={};
+  SEED_PRODUCTS.forEach(p=>{ const key=db.ref(`${DB_ROOT}/products`).push().key; updates[key]=p; });
+  db.ref(`${DB_ROOT}/products`).update(updates).then(()=>toast("6 prodotti di esempio importati"));
+}
+function saveMaxDisplay(){
+  const v=Number(document.getElementById("maxDisplay").value)||0;
+  db.ref(`${DB_ROOT}/config/maxDisplay`).set(v).then(()=>toast("Limite vetrina salvato"));
+}
+
+/* ====================== CONFIG ====================== */
+function fillConfig(c){
+  document.getElementById("cf-ppid").value=c.paypalClientId||"";
+  document.getElementById("cf-cur").value=c.paypalCurrency||"EUR";
+  document.getElementById("cf-ship").value=c.shipping!=null?c.shipping:8.90;
+  document.getElementById("cf-free").value=c.freeShippingOver!=null?c.freeShippingOver:200;
+  document.getElementById("cf-name").value=c.shopName||"AMIDENIM";
+}
+function saveConfig(){
+  const data={
+    paypalClientId:document.getElementById("cf-ppid").value.trim(),
+    paypalCurrency:document.getElementById("cf-cur").value,
+    shipping:Number(document.getElementById("cf-ship").value)||0,
+    freeShippingOver:Number(document.getElementById("cf-free").value)||null,
+    shopName:document.getElementById("cf-name").value.trim()||"AMIDENIM",
+    maxDisplay:Number(document.getElementById("maxDisplay").value)||0
+  };
+  db.ref(`${DB_ROOT}/config`).update(data).then(()=>{
+    const m=document.getElementById("cf-msg"); m.classList.add("show"); setTimeout(()=>m.classList.remove("show"),2500);
+    toast("Configurazione salvata");
+  });
+}
+
+/* ====================== ORDINI ====================== */
+function ordArray(){
+  return Object.entries(orders).map(([id,o])=>({id,...o})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+}
+function updateBadge(){
+  const n=ordArray().filter(o=>(o.status||"nuovo")==="nuovo").length;
+  document.getElementById("ord-badge").textContent=n;
+}
+function renderOrders(){
+  document.getElementById("ord-loader").classList.remove("show");
+  const filter=document.getElementById("ord-filter").value;
+  let list=ordArray(); if(filter) list=list.filter(o=>(o.status||"nuovo")===filter);
+  const tbl=document.getElementById("otable"), empty=document.getElementById("ord-empty");
+  if(!list.length){ tbl.style.display="none"; empty.style.display="block"; return; }
+  tbl.style.display=""; empty.style.display="none";
+  document.getElementById("otbody").innerHTML = list.map(o=>{
+    const st=o.status||"nuovo"; const c=o.customer||{}; const d=new Date(o.createdAt||0);
+    const dstr=isNaN(d)?"—":d.toLocaleDateString("it-IT")+" "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+    return `<tr onclick="toggleOrder('${o.id}')" style="cursor:pointer">
+        <td class="mono">${dstr}</td>
+        <td>${(c.firstName||"")+" "+(c.lastName||"")}</td>
+        <td>${c.email||"—"}</td>
+        <td class="mono">€${Number(o.total||0).toFixed(2)}</td>
+        <td><span class="statepill s-${st}">${st}</span></td>
+        <td>▾</td>
+      </tr>
+      <tr id="od-${o.id}" style="display:none"><td colspan="6" class="odetail">${orderDetail(o)}</td></tr>`;
+  }).join("");
+}
+function orderDetail(o){
+  const b=o.billing||{}, s=o.shipping||{}, c=o.customer||{};
+  const ship = s.sameAsBilling ? b : s;
+  const items=(o.items||[]).map(it=>`<div><span>${it.name} <small style="color:#8a877c">(${it.base||""})</small></span><span>€${Number(it.price||0).toFixed(2)}</span></div>`).join("");
+  return `<div class="ogrid">
+    <div>
+      <h5>Fatturazione</h5>
+      <div class="addr">${c.firstName||""} ${c.lastName||""}<br>${b.address||""}<br>${b.zip||""} ${b.city||""} ${b.province?"("+b.province+")":""}<br>${b.country||""}<br>${c.phone?"Tel: "+c.phone:""}</div>
+    </div>
+    <div>
+      <h5>Spedizione ${s.sameAsBilling?"(= fatturazione)":""}</h5>
+      <div class="addr">${ship.name||((c.firstName||"")+" "+(c.lastName||""))}<br>${ship.address||""}<br>${ship.zip||""} ${ship.city||""} ${ship.province?"("+ship.province+")":""}<br>${ship.country||""}</div>
+    </div>
+    <div style="grid-column:1/-1">
+      <h5>Articoli</h5>
+      <div class="oitems">${items}
+        <div style="border-top:1px dashed var(--line);margin-top:6px;padding-top:6px"><span>Spedizione</span><span>€${Number(o.shipping||0).toFixed(2)}</span></div>
+        <div style="font-weight:700"><span>Totale</span><span>€${Number(o.total||0).toFixed(2)}</span></div>
+        ${o.paypalOrderId?`<div style="color:#8a877c;margin-top:6px"><span>PayPal ID</span><span>${o.paypalOrderId}</span></div>`:""}
+      </div>
+      <div class="row-actions" style="margin-top:12px">
+        <button class="btn btn-dark btn-sm" onclick="event.stopPropagation();setStatus('${o.id}','spedito')">Segna spedito</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();setStatus('${o.id}','nuovo')">Riapri</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();setStatus('${o.id}','annullato')">Annulla</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delOrder('${o.id}')">Elimina</button>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleOrder(id){ const r=document.getElementById("od-"+id); r.style.display=r.style.display==="none"?"table-row":"none"; }
+function setStatus(id,st){ db.ref(`${DB_ROOT}/orders/${id}/status`).set(st).then(()=>toast("Stato: "+st)); }
+function delOrder(id){ if(confirm("Eliminare definitivamente questo ordine?")) db.ref(`${DB_ROOT}/orders/${id}`).remove().then(()=>toast("Ordine eliminato")); }
+
+function exportCSV(){
+  const list=ordArray();
+  const head=["Data","Nome","Cognome","Email","Telefono","Fatt_Indirizzo","Fatt_CAP","Fatt_Città","Fatt_Prov","Sped_Indirizzo","Sped_CAP","Sped_Città","Sped_Prov","Articoli","Totale","Stato","PayPalID"];
+  const rows=list.map(o=>{
+    const c=o.customer||{},b=o.billing||{},s=(o.shipping&&!o.shipping.sameAsBilling)?o.shipping:b;
+    const items=(o.items||[]).map(i=>i.name).join(" | ");
+    const d=new Date(o.createdAt||0);
+    return [isNaN(d)?"":d.toLocaleString("it-IT"),c.firstName,c.lastName,c.email,c.phone,b.address,b.zip,b.city,b.province,s.address,s.zip,s.city,s.province,items,Number(o.total||0).toFixed(2),o.status||"nuovo",o.paypalOrderId||""]
+      .map(x=>`"${(x||"").toString().replace(/"/g,'""')}"`).join(",");
+  });
+  const csv=[head.join(","),...rows].join("\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="amidenim-ordini.csv"; a.click();
+}
+
+/* ====================== UTIL ====================== */
+function switchTab(t){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById("panel-"+t).classList.add("active");
+}
+function resizeImage(file,maxDim,quality,cb){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      let{width:w,height:h}=img;
+      if(w>h && w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; }
+      else if(h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; }
+      const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h);
+      cb(cv.toDataURL("image/jpeg",quality));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+let toastT;
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
+
+/* SVG denim placeholder (uguale alla vetrina) */
+function shade(hex,n){let c=(hex||"#33507e").replace("#","");if(c.length===3)c=c.split("").map(x=>x+x).join("");let r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16);const f=x=>Math.max(0,Math.min(255,Math.round(x+(n/100)*(n>0?255-x:x))));return"#"+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+function denimSVG(p){const w=p.wash||"#33507e",L=shade(w,28),D=shade(w,-26);const id=(p.id||p.name||"x").replace(/[^a-z0-9]/gi,"");
+  return `<svg viewBox="0 0 260 325" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+   <defs><linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${L}"/><stop offset="1" stop-color="${D}"/></linearGradient>
+   <pattern id="t${id}" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="${w}"/><line x1="0" y1="0" x2="0" y2="6" stroke="${L}" stroke-width="1" opacity=".25"/></pattern></defs>
+   <rect width="260" height="325" fill="url(#g${id})"/><rect width="260" height="325" fill="url(#t${id})" opacity=".55"/>
+   <g transform="translate(168,232)"><path d="M0 0 h64 v34 l-32 22 l-32 -22 z" fill="${D}" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><path d="M8 12 q24 18 48 0" fill="none" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><circle cx="4" cy="4" r="3.4" fill="#cf7a2e"/></g></svg>`;}
+</script>
+</body>
+</html>
