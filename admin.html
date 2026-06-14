@@ -859,7 +859,10 @@ function clearIgPhoto(idx){
 }
 
 function saveIgPhotos(){
-  db.ref(DB_ROOT+"/instagram").set(igPhotos).then(()=>{
+  // Salva come oggetto indicizzato (Firebase gestisce meglio gli oggetti che gli array)
+  const obj = {};
+  igPhotos.forEach((v,i) => obj[i] = v);
+  db.ref(DB_ROOT+"/instagram").set(obj).then(()=>{
     const m=document.getElementById("ig-msg"); if(m){m.classList.add("show");setTimeout(()=>m.classList.remove("show"),3000);}
     toast("Foto Instagram salvate");
   }).catch(e=>toast("Errore: "+e.message));
