@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMIDENIM — Jeans di marca ridisegnati a mano</title>
+<meta name="description" content="Capi di marca vintage selezionati, destrutturati e personalizzati uno a uno. Pezzi unici, denim rigenerato.">
+
+<!-- ============================================================= -->
+<!--  FIREBASE — identico ad admin.html                            -->
+<!-- ============================================================= -->
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBVmpf8EoVM7E8BoenEfSuIhaQDPPSPLjI",
+  authDomain: "amidenim-ea84b.firebaseapp.com",
+  databaseURL: "https://amidenim-ea84b-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "amidenim-ea84b",
+  storageBucket: "amidenim-ea84b.firebasestorage.app",
+  messagingSenderId: "372731435824",
+  appId: "1:372731435824:web:271f6e11dfde3ae00b46f5"
+};
+const DB_ROOT = "amidenim";
+function firebaseConfigured(){ return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "INSERISCI"; }
+
+// Valori di default usati SOLO se Firebase non è ancora configurato.
+let CONFIG = {
+  PAYPAL_CLIENT_ID: "INSERISCI_QUI_IL_TUO_CLIENT_ID",
+  PAYPAL_CURRENCY: "EUR",
+  PAYPALME: "https://paypal.me/GiuseppeIermano",
+  SHOP_NAME: "AMIDENIM",
+  SHIPPING: 8.90,
+  FREE_SHIPPING_OVER: 200
+};
+// Catalogo di riserva (mostrato se Firebase non risponde / è vuoto).
+let PRODUCTS = [
+  { id:"breakwater", name:"Breakwater", base:"Levi's 501", mod:"distressed", size:"W32 L32", price:119, num:"001/UNICO", wash:"#3f5d83", desc:"Strappi a mano sulle ginocchia, baffature sbiancate, orlo grezzo." },
+  { id:"inkblot", name:"Inkblot", base:"Diesel Thommer", mod:"painted", size:"W30 L32", price:145, num:"002/UNICO", wash:"#202a40", desc:"Vernice tessile applicata e screpolata a mano." },
+  { id:"patchwork-7", name:"Patchwork No.7", base:"Wrangler", mod:"patched", size:"W34 L34", price:129, num:"003/UNICO", wash:"#4a6790", desc:"Sette toppe in denim di recupero, cuciti a contrasto arancio." },
+  { id:"stitchline", name:"Stitchline", base:"Levi's 511", mod:"embroidered", size:"W31 L32", price:139, num:"004/UNICO", wash:"#324a6e", desc:"Ricamo a mano lungo la cucitura esterna." },
+  { id:"raw-cut", name:"Raw Cut", base:"Carhartt", mod:"cropped", size:"W33 L30", price:109, num:"005/UNICO", wash:"#5a7aa3", desc:"Accorciato e lasciato sfrangiare. Tessuto robusto da workwear." },
+  { id:"midnight-fade", name:"Midnight Fade", base:"Lee", mod:"acid wash", size:"W32 L34", price:115, num:"006/UNICO", wash:"#283a55", desc:"Lavaggio acido custom: schiariture nuvolose su fondo blu notte." }
+];
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --indigo-raw:#141b29;--indigo:#1d2a45;--indigo-mid:#33507e;
+  --chambray:#9fbfdc;--cream:#f1ece1;--paper:#e7e0d2;
+  --copper:#cf7a2e;--copper-bright:#ec9646;--rivet:#a8662f;
+  --ink:#13181f;--line:rgba(20,27,41,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Archivo",system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.stitched{position:relative}
+.stitched::after{content:"";position:absolute;inset:7px;pointer-events:none;border:2px dashed var(--copper);border-radius:3px;opacity:.85}
+header{position:sticky;top:0;z-index:60;background:var(--indigo-raw);border-bottom:2px solid rgba(207,122,46,.45)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:68px}
+.brand{font-family:"Anton",sans-serif;color:var(--cream);font-size:30px;letter-spacing:.06em;line-height:1;cursor:pointer;display:flex;align-items:baseline;gap:2px}
+.brand b{color:var(--copper-bright);font-weight:400}
+nav.links{display:flex;gap:26px}
+nav.links a{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--chambray);text-decoration:none;padding:6px 0;position:relative}
+nav.links a:hover{color:var(--cream)}
+nav.links a::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--copper);transition:width .25s}
+nav.links a:hover::after{width:100%}
+.cartbtn{display:inline-flex;align-items:center;gap:9px;cursor:pointer;background:var(--copper);color:#1a1206;border:none;font-family:"Space Mono",monospace;font-weight:700;font-size:13px;padding:11px 16px;border-radius:2px;letter-spacing:.04em}
+.cartbtn:hover{background:var(--copper-bright)}
+.cartbtn .count{background:var(--indigo-raw);color:var(--copper-bright);min-width:20px;height:20px;border-radius:20px;display:grid;place-items:center;font-size:12px;padding:0 5px}
+.hero{background:radial-gradient(120% 90% at 80% -10%,rgba(207,122,46,.18),transparent 55%),linear-gradient(180deg,var(--indigo-raw),var(--indigo) 70%,#16203a);color:var(--cream);padding:78px 0 92px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;opacity:.06;pointer-events:none;background-image:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 4px),repeating-linear-gradient(-45deg,#fff 0 1px,transparent 1px 5px)}
+.eyebrow{font-family:"Space Mono",monospace;font-size:12.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--copper-bright);margin-bottom:24px;display:inline-flex;align-items:center;gap:12px;position:relative;z-index:1}
+.eyebrow::before{content:"";width:34px;height:2px;background:var(--copper)}
+.hero h1{font-family:"Anton",sans-serif;font-weight:400;font-size:clamp(44px,8.2vw,104px);line-height:.92;letter-spacing:.01em;text-transform:uppercase;max-width:14ch;position:relative;z-index:1}
+.hero h1 em{color:var(--copper-bright);font-style:normal}
+.hero p.lead{margin-top:26px;max-width:46ch;font-size:17px;color:var(--chambray);position:relative;z-index:1}
+.hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:36px;position:relative;z-index:1}
+.btn{font-family:"Archivo";font-weight:700;font-size:14px;letter-spacing:.04em;padding:15px 26px;border-radius:2px;border:2px solid transparent;cursor:pointer;text-decoration:none;display:inline-block;transition:transform .15s,background .2s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--copper);color:#1a1206}.btn-primary:hover{background:var(--copper-bright)}
+.btn-ghost{background:transparent;color:var(--cream);border-color:rgba(159,191,220,.45)}.btn-ghost:hover{border-color:var(--copper);color:var(--copper-bright)}
+.marquee{background:var(--copper);color:#1a1206;overflow:hidden;border-top:2px solid #1a1206;border-bottom:2px solid #1a1206}
+.marquee div{display:inline-block;white-space:nowrap;padding:9px 0;font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;animation:slide 26s linear infinite}
+.marquee span{padding:0 26px}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+section{padding:78px 0}
+.kicker{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--copper);margin-bottom:10px}
+.h2{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(30px,5vw,52px);line-height:1;letter-spacing:.01em}
+.sub{max-width:52ch;color:#42413a;margin-top:14px;font-size:16px}
+.process{background:var(--paper)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:42px}
+.step{background:var(--cream);padding:30px 26px 32px;position:relative;border-radius:4px}
+.step .no{font-family:"Anton",sans-serif;font-size:46px;color:var(--copper);line-height:1}
+.step h3{font-size:15px;letter-spacing:.14em;text-transform:uppercase;margin:14px 0 8px}
+.step p{font-size:14.5px;color:#4a4940}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:44px}
+.card{background:var(--cream);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--line)}
+.card .ph{position:relative;aspect-ratio:4/5;background:var(--indigo)}
+.card .ph svg,.card .ph img{position:absolute;inset:0;width:100%;height:100%}
+.card .ph img{object-fit:cover}
+.badge{position:absolute;top:12px;left:12px;z-index:2;font-family:"Space Mono",monospace;font-size:10.5px;font-weight:700;letter-spacing:.1em;background:var(--indigo-raw);color:var(--copper-bright);padding:5px 9px;border-radius:2px}
+.tag-mod{position:absolute;top:12px;right:12px;z-index:2;text-transform:uppercase;font-size:10.5px;font-weight:700;letter-spacing:.1em;background:var(--copper);color:#1a1206;padding:5px 9px;border-radius:2px}
+.card .body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card .base{font-family:"Space Mono",monospace;font-size:11.5px;letter-spacing:.08em;color:#6b6a60;text-transform:uppercase}
+.card h3{font-family:"Anton",sans-serif;font-weight:400;font-size:25px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.card .pdesc{font-size:13.5px;color:#54534a;flex:1}
+.card .meta{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.card .size{font-family:"Space Mono",monospace;font-size:12px;color:#6b6a60}
+.card .price{font-family:"Space Mono",monospace;font-weight:700;font-size:20px}
+.card .price small{font-size:12px;font-weight:400;color:#6b6a60}
+.add{margin-top:10px;width:100%;border:none;cursor:pointer;background:var(--indigo-raw);color:var(--cream);font-family:"Archivo";font-weight:700;font-size:13.5px;letter-spacing:.06em;padding:13px;border-radius:2px;text-transform:uppercase;transition:background .2s}
+.add:hover{background:var(--indigo-mid)}
+.add[disabled]{background:#b9b3a6;color:#6c675c;cursor:not-allowed}
+.editorial{background:var(--indigo-raw);color:var(--cream)}
+.editorial .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:46px;align-items:center}
+.editorial h2{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(28px,4.4vw,46px);line-height:1.02}
+.editorial p{color:var(--chambray);margin-top:16px;font-size:16px;max-width:46ch}
+.rivets{list-style:none;margin-top:22px;display:grid;gap:11px}
+.rivets li{position:relative;padding-left:26px;font-size:14.5px;color:var(--cream)}
+.rivets li::before{content:"";position:absolute;left:0;top:6px;width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--copper-bright),var(--rivet));box-shadow:0 0 0 2px rgba(207,122,46,.25)}
+.patch{aspect-ratio:1.5/1;background:#5a3a22;border-radius:10px;display:grid;place-items:center;text-align:center;color:#f3e7d6;border:2px solid #3a2414;box-shadow:inset 0 0 0 6px rgba(0,0,0,.12)}
+.patch .pin{font-family:"Anton",sans-serif;font-size:clamp(30px,5vw,54px);letter-spacing:.04em;line-height:1}
+.patch .pin b{color:var(--copper-bright);font-weight:400}
+.patch small{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.24em;margin-top:8px;display:block;color:#d8b894}
+footer{background:#0f1521;color:var(--chambray);padding:54px 0 40px}
+footer .top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;border-bottom:1px solid rgba(159,191,220,.18);padding-bottom:30px}
+footer .brand2{font-family:"Anton",sans-serif;font-size:34px;color:var(--cream);letter-spacing:.05em}
+footer .brand2 b{color:var(--copper-bright);font-weight:400}
+footer h4{color:var(--cream);font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+footer a{color:var(--chambray);text-decoration:none;font-size:14px;display:block;margin-bottom:7px}
+footer a:hover{color:var(--copper-bright)}
+footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
+.overlay{position:fixed;inset:0;background:rgba(15,21,33,.55);opacity:0;visibility:hidden;transition:.25s;z-index:90}
+.overlay.open{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,94vw);background:var(--cream);z-index:100;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,.3)}
+.drawer.open{transform:translateX(0)}
+.drawer .dhead{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;background:var(--indigo-raw);color:var(--cream)}
+.drawer .dhead h3{font-family:"Anton",sans-serif;font-weight:400;font-size:22px;letter-spacing:.04em}
+.drawer .close{background:none;border:none;color:var(--cream);font-size:26px;cursor:pointer;line-height:1}
+.dscroll{flex:1;overflow-y:auto}
+.items{padding:14px 18px}
+.empty{text-align:center;color:#6b6a60;padding:60px 16px;font-size:14.5px}
+.item{display:flex;gap:13px;padding:14px 0;border-bottom:1px dashed var(--line)}
+.item .thumb{width:62px;height:78px;border-radius:3px;overflow:hidden;flex:none;background:var(--indigo)}
+.item .thumb svg,.item .thumb img{width:100%;height:100%;object-fit:cover}
+.item .info{flex:1;min-width:0}
+.item .info h4{font-size:14.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.item .info .b{font-family:"Space Mono",monospace;font-size:11px;color:#6b6a60}
+.item .info .pr{font-family:"Space Mono",monospace;font-weight:700;margin-top:5px}
+.item .rm{background:none;border:none;color:var(--rivet);cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;align-self:flex-start;margin-top:2px}
+.item .rm:hover{color:var(--copper)}
+.summary{padding:18px 22px;border-top:2px solid var(--line);background:var(--paper)}
+.row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;font-family:"Space Mono",monospace}
+.row.tot{font-size:18px;font-weight:700;margin-top:8px;padding-top:12px;border-top:1px dashed var(--line)}
+.cobtn{width:100%;border:none;cursor:pointer;background:var(--copper);color:#1a1206;font-family:"Archivo";font-weight:700;font-size:14px;letter-spacing:.04em;padding:14px;border-radius:2px;text-transform:uppercase;margin-top:6px}
+.cobtn:hover{background:var(--copper-bright)}
+/* checkout form */
+.checkout{padding:18px 22px;display:none}
+.checkout.show{display:block}
+.checkout h4{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;font-size:18px;letter-spacing:.03em;margin:16px 0 10px}
+.checkout h4:first-child{margin-top:0}
+.fld{margin-bottom:11px}
+.fld label{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#54534a;margin-bottom:4px}
+.fld input{width:100%;padding:10px 11px;border:1.5px solid var(--line);border-radius:3px;background:#fff;font-size:14px}
+.fld input:focus{outline:none;border-color:var(--copper)}
+.fld input.bad{border-color:#c0444c;background:#fdf3f3}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f3{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:10px}
+.chk{display:flex;align-items:center;gap:9px;font-size:13.5px;margin:6px 0 4px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--copper)}
+.backlink{background:none;border:none;color:var(--copper);font-weight:700;font-size:13px;cursor:pointer;padding:0;margin-bottom:10px}
+#paypal-area{margin-top:14px}
+.notice{background:#fff7ec;border:1px solid var(--copper);border-radius:4px;padding:14px;font-size:13px;color:#5a4326}
+.notice b{display:block;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase;font-size:12px}
+.notice code{background:#f1ddc0;padding:1px 5px;border-radius:3px;font-family:"Space Mono",monospace;font-size:12px}
+.formhint{font-size:12.5px;color:#a06a2e;margin-top:8px;display:none}
+.formhint.show{display:block}
+.pmlink{display:block;text-align:center;background:#0070ba;color:#fff;text-decoration:none;font-weight:700;padding:13px;border-radius:4px;margin-top:10px;font-size:14px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--indigo-raw);color:var(--cream);padding:13px 22px;border-radius:3px;font-size:14px;font-weight:600;opacity:0;visibility:hidden;transition:.3s;z-index:120;border-left:4px solid var(--copper)}
+.toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+@media(max-width:860px){.steps{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.editorial .wrap{grid-template-columns:1fr}nav.links{display:none}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.bar{height:60px}.brand{font-size:25px}.cartbtn span.lbl{display:none}.f3{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.marquee div{animation:none}*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand" onclick="scrollTo({top:0,behavior:'smooth'})">AMI<b>DENIM</b></div>
+    <nav class="links">
+      <a href="#collezione">Collezione</a>
+      <a href="#processo">Il processo</a>
+      <a href="#storia">Storia</a>
+    </nav>
+    <button class="cartbtn" onclick="openCart()"><span class="lbl">Carrello</span><span class="count" id="cart-count">0</span></button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Denim custom · pezzi unici</span>
+    <h1>Jeans di marca, <em>ridisegnati</em> a mano.</h1>
+    <p class="lead">Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.</p>
+    <div class="cta">
+      <a href="#collezione" class="btn btn-primary">Scopri i pezzi</a>
+      <a href="#processo" class="btn btn-ghost">Come funziona</a>
+    </div>
+  </div>
+</div>
+
+<div class="marquee" aria-hidden="true"><div id="mq"></div></div>
+
+<section id="collezione">
+  <div class="wrap">
+    <div class="kicker">// La collezione</div>
+    <h2 class="h2">Sei pezzi, sei storie</h2>
+    <p class="sub">Ogni capo è numerato e venduto in copia singola. Una volta in carrello, è tuo: nessun altro avrà lo stesso.</p>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section id="processo" class="process">
+  <div class="wrap">
+    <div class="kicker">// Dal capo originale al pezzo unico</div>
+    <h2 class="h2">Il processo</h2>
+    <div class="steps">
+      <div class="step stitched"><div class="no">01</div><h3>Selezione</h3><p>Recuperiamo capi originali di marca, scelti a uno a uno per qualità del tessuto e vestibilità.</p></div>
+      <div class="step stitched"><div class="no">02</div><h3>Destrutturazione</h3><p>Scuciture, tagli, lavaggi e trattamenti fatti a mano in laboratorio. Qui il capo perde la sua vita precedente.</p></div>
+      <div class="step stitched"><div class="no">03</div><h3>Firma</h3><p>Custom finale: vernici, toppe, ricami a contrasto. Ogni pezzo esce numerato e irripetibile.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="storia" class="editorial">
+  <div class="wrap">
+    <div>
+      <h2>Non produciamo jeans.<br>Ne diamo un secondo giro.</h2>
+      <p>AMIDENIM nasce da un'idea semplice: il denim di marca è fatto per durare decenni, ma finisce dimenticato negli armadi. Noi lo intercettiamo e lo trasformiamo in qualcosa che nessuno ha mai indossato prima.</p>
+      <ul class="rivets">
+        <li>Capi base autentici, non riproduzioni</li>
+        <li>Lavorazione artigianale, zero produzione in serie</li>
+        <li>Ogni pezzo numerato e fotografato com'è</li>
+        <li>Meno tessuto nuovo, più denim rimesso in circolo</li>
+      </ul>
+    </div>
+    <div class="patch"><div><div class="pin">AMI<b>DENIM</b></div><small>RIGENERATO · NUMERATO · UNICO</small></div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="top">
+      <div><div class="brand2">AMI<b>DENIM</b></div><p style="margin-top:10px;max-width:34ch;font-size:14px">Denim di marca ridisegnato a mano. Pezzi unici, spediti in tutta Italia.</p></div>
+      <div><h4>Naviga</h4><a href="#collezione">Collezione</a><a href="#processo">Il processo</a><a href="#storia">La storia</a></div>
+      <div><h4>Contatti</h4><a href="mailto:info@amidenim.it">info@amidenim.it</a><a href="#">Instagram</a><a href="#">Spedizioni &amp; resi</a></div>
+    </div>
+    <p class="legal">AMIDENIM personalizza capi originali acquistati legalmente: i marchi citati indicano solo la provenienza del capo di partenza, senza alcun rapporto di affiliazione o sponsorizzazione. © <span id="yr"></span> AMIDENIM · IermanoLab.</p>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer" aria-label="Carrello">
+  <div class="dhead">
+    <h3 id="drawer-title">Il tuo carrello</h3>
+    <button class="close" onclick="closeCart()" aria-label="Chiudi">&times;</button>
+  </div>
+  <div class="dscroll">
+    <div class="items" id="items"></div>
+    <div class="checkout" id="checkout"></div>
+  </div>
+  <div class="summary" id="summary"></div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+let db=null, cart=[], checkoutMode=false;
+try{ const s=localStorage.getItem("amidenim_cart"); if(s) cart=JSON.parse(s); }catch(e){}
+function persist(){ try{ localStorage.setItem("amidenim_cart",JSON.stringify(cart)); }catch(e){} }
+const euro=n=>"€"+Number(n).toFixed(2).replace(".",",");
+const find=id=>PRODUCTS.find(p=>p.id===id);
+function cleanCart(){ const before=cart.length; cart=cart.filter(id=>find(id)); if(cart.length!==before) persist(); }
+
+/* ---------- caricamento da Firebase ---------- */
+function boot(){
+  if(firebaseConfigured()){
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db=firebase.database();
+      Promise.all([
+        db.ref(DB_ROOT+"/config").once("value"),
+        db.ref(DB_ROOT+"/products").once("value")
+      ]).then(([cs,ps])=>{
+        const c=cs.val(); if(c){
+          CONFIG.PAYPAL_CLIENT_ID=c.paypalClientId||CONFIG.PAYPAL_CLIENT_ID;
+          CONFIG.PAYPAL_CURRENCY=c.paypalCurrency||CONFIG.PAYPAL_CURRENCY;
+          CONFIG.PAYPALME=c.paypalMe||CONFIG.PAYPALME;
+          CONFIG.PAYPAL_MODE=c.paypalMode||"me";
+          CONFIG.SHIPPING=c.shipping!=null?c.shipping:CONFIG.SHIPPING;
+          CONFIG.FREE_SHIPPING_OVER=c.freeShippingOver!=null?c.freeShippingOver:CONFIG.FREE_SHIPPING_OVER;
+          CONFIG.SHOP_NAME=c.shopName||CONFIG.SHOP_NAME;
+          CONFIG.MAX_DISPLAY=c.maxDisplay||0;
+        }
+        const pv=ps.val();
+        if(pv && Object.keys(pv).length){
+          let arr=Object.entries(pv).map(([id,p])=>({id,...p}))
+            .filter(p=>p.active!==false).sort((a,b)=>(a.order||0)-(b.order||0));
+          if(CONFIG.MAX_DISPLAY>0) arr=arr.slice(0,CONFIG.MAX_DISPLAY);
+          PRODUCTS=arr;
+        }
+        renderGrid();
+      }).catch(err=>{ console.warn("Firebase non raggiungibile, uso il catalogo di riserva.",err); renderGrid(); });
+    }catch(e){ console.warn(e); renderGrid(); }
+  }else{
+    renderGrid();
+  }
+}
+
+/* ---------- SVG denim placeholder ---------- */
+function shade(hex,n){let c=(hex||"#33507e").replace("#","");if(c.length===3)c=c.split("").map(x=>x+x).join("");let r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16);const f=x=>Math.max(0,Math.min(255,Math.round(x+(n/100)*(n>0?255-x:x))));return"#"+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+function denimSVG(p){
+  const w=p.wash||"#33507e",L=shade(w,28),D=shade(w,-26),id=(p.id||p.name||"x").replace(/[^a-z0-9]/gi,"");
+  let ov="";
+  if(p.mod==="distressed")ov=`<g stroke="#e9e2d5" stroke-width="2" opacity=".8"><line x1="60" y1="150" x2="120" y2="150"/><line x1="64" y1="156" x2="116" y2="156"/><line x1="150" y1="200" x2="210" y2="200"/></g>`;
+  if(p.mod==="painted")ov=`<g opacity=".88"><circle cx="95" cy="120" r="20" fill="#e0b341"/><circle cx="150" cy="170" r="13" fill="#c95a3a"/><path d="M120 90 q40 30 10 80" stroke="#e8e2d4" stroke-width="9" fill="none" stroke-linecap="round"/></g>`;
+  if(p.mod==="patched")ov=`<g><rect x="70" y="110" width="46" height="46" fill="${shade(w,40)}" stroke="${D}" stroke-width="2"/><rect x="140" y="180" width="40" height="40" fill="${shade(w,-40)}" stroke="${D}" stroke-width="2"/><rect x="120" y="120" width="34" height="34" fill="#7d4a2a"/></g>`;
+  if(p.mod==="embroidered")ov=`<g stroke="#ec9646" stroke-width="3" fill="none" stroke-linecap="round"><path d="M70 130 q20 -20 40 0 q20 20 40 0"/><path d="M70 150 q20 -20 40 0 q20 20 40 0"/><circle cx="160" cy="200" r="14" stroke="#e0b341"/></g>`;
+  if(p.mod==="cropped")ov=`<g stroke="#e9e2d5" stroke-width="2" opacity=".85"><path d="M40 250 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8 l8 -8 l8 8"/></g>`;
+  if(p.mod==="acid wash")ov=`<g opacity=".5"><ellipse cx="100" cy="130" rx="55" ry="40" fill="${shade(w,60)}"/><ellipse cx="170" cy="220" rx="45" ry="36" fill="${shade(w,55)}"/></g>`;
+  return `<svg viewBox="0 0 260 325" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="g_${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${L}"/><stop offset="1" stop-color="${D}"/></linearGradient>
+    <pattern id="t_${id}" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="${w}"/><line x1="0" y1="0" x2="0" y2="6" stroke="${L}" stroke-width="1" opacity=".25"/></pattern></defs>
+    <rect width="260" height="325" fill="url(#g_${id})"/><rect width="260" height="325" fill="url(#t_${id})" opacity=".55"/>${ov}
+    <g transform="translate(168,232)"><path d="M0 0 h64 v34 l-32 22 l-32 -22 z" fill="${D}" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><path d="M8 12 q24 18 48 0" fill="none" stroke="#cf7a2e" stroke-width="2" stroke-dasharray="4 3"/><circle cx="4" cy="4" r="3.4" fill="#cf7a2e"/></g></svg>`;
+}
+function media(p){ return p.image?`<img src="${p.image}" alt="${p.name||''}">`:denimSVG(p); }
+
+/* ---------- catalogo ---------- */
+function renderGrid(){
+  document.getElementById("grid").innerHTML = PRODUCTS.map(p=>{
+    const inCart=cart.includes(p.id);
+    return `<article class="card">
+      <div class="ph"><span class="badge">№ ${p.num||'—'}</span><span class="tag-mod">${p.mod||''}</span>${media(p)}</div>
+      <div class="body">
+        <div class="base">Base · ${p.base||''}</div>
+        <h3>${p.name||''}</h3>
+        <p class="pdesc">${p.desc||''}</p>
+        <div class="meta"><span class="size">${p.size||''}</span><span class="price">${euro(p.price)} <small>iva incl.</small></span></div>
+        <button class="add" ${inCart?'disabled':''} onclick="addToCart('${p.id}')">${inCart?'Già nel carrello':'Aggiungi al carrello'}</button>
+      </div>
+    </article>`;
+  }).join("");
+  updateCount();
+}
+
+/* ---------- carrello ---------- */
+function addToCart(id){ if(cart.includes(id))return; cart.push(id); persist(); renderGrid(); renderCart(); openCart(); toast((find(id)?.name||"Capo")+" aggiunto"); }
+function removeFromCart(id){ cart=cart.filter(x=>x!==id); persist(); renderGrid(); renderCart(); }
+function updateCount(){ document.getElementById("cart-count").textContent=cart.length; }
+function openCart(){ document.getElementById("drawer").classList.add("open"); document.getElementById("overlay").classList.add("open"); renderCart(); }
+function closeCart(){ document.getElementById("drawer").classList.remove("open"); document.getElementById("overlay").classList.remove("open"); checkoutMode=false; }
+function cartSubtotal(){ return cart.reduce((s,id)=>s+(find(id)?.price||0),0); }
+function shippingCost(sub){ if(CONFIG.SHIPPING<=0)return 0; if(CONFIG.FREE_SHIPPING_OVER!=null && sub>=CONFIG.FREE_SHIPPING_OVER)return 0; return cart.length?CONFIG.SHIPPING:0; }
+
+function renderCart(){
+  const itemsBox=document.getElementById("items"), co=document.getElementById("checkout");
+  document.getElementById("drawer-title").textContent = checkoutMode?"Dati e pagamento":"Il tuo carrello";
+  if(!cart.length){
+    itemsBox.style.display="block"; co.classList.remove("show"); checkoutMode=false;
+    itemsBox.innerHTML=`<div class="empty">Il carrello è vuoto.<br>Scegli un pezzo unico dalla collezione.</div>`;
+    document.getElementById("summary").innerHTML=""; return;
+  }
+  if(checkoutMode){ itemsBox.style.display="none"; co.classList.add("show"); renderCheckout(); }
+  else{
+    itemsBox.style.display="block"; co.classList.remove("show");
+    itemsBox.innerHTML=cart.map(id=>{const p=find(id);return `<div class="item">
+      <div class="thumb">${media(p)}</div>
+      <div class="info"><h4>${p.name}</h4><div class="b">${p.base||''} · ${p.size||''}</div><div class="pr">${euro(p.price)}</div>
+      <button class="rm" onclick="removeFromCart('${p.id}')">Rimuovi</button></div></div>`;}).join("");
+  }
+  renderSummary();
+}
+function renderSummary(){
+  const sub=cartSubtotal(), ship=shippingCost(sub), tot=sub+ship;
+  document.getElementById("summary").innerHTML=`
+    <div class="row"><span>Subtotale</span><span>${euro(sub)}</span></div>
+    <div class="row"><span>Spedizione</span><span>${ship===0?'Gratis':euro(ship)}</span></div>
+    <div class="row tot"><span>Totale</span><span>${euro(tot)}</span></div>
+    ${checkoutMode?'':`<button class="cobtn" onclick="goCheckout()">Vai al checkout</button>`}`;
+}
+function goCheckout(){ checkoutMode=true; renderCart(); }
+
+/* ---------- checkout: form indirizzi ---------- */
+function renderCheckout(){
+  const co=document.getElementById("checkout");
+  co.innerHTML=`
+    <button class="backlink" onclick="backToCart()">← Torna al carrello</button>
+    <h4>Contatti</h4>
+    <div class="f2">
+      <div class="fld"><label>Nome*</label><input id="ck-fn"></div>
+      <div class="fld"><label>Cognome*</label><input id="ck-ln"></div>
+    </div>
+    <div class="f2">
+      <div class="fld"><label>Email*</label><input id="ck-em" type="email"></div>
+      <div class="fld"><label>Telefono</label><input id="ck-ph"></div>
+    </div>
+    <h4>Indirizzo di fatturazione</h4>
+    <div class="fld"><label>Indirizzo*</label><input id="ck-baddr" placeholder="Via, numero civico"></div>
+    <div class="f3">
+      <div class="fld"><label>Città*</label><input id="ck-bcity"></div>
+      <div class="fld"><label>CAP*</label><input id="ck-bzip"></div>
+      <div class="fld"><label>Prov.</label><input id="ck-bprov" maxlength="2"></div>
+    </div>
+    <div class="fld"><label>Paese*</label><input id="ck-bcountry" value="Italia"></div>
+    <label class="chk"><input type="checkbox" id="ck-same" checked onchange="toggleShip()"> Spedisci allo stesso indirizzo</label>
+    <div id="ship-fields" style="display:none">
+      <h4>Indirizzo di spedizione</h4>
+      <div class="fld"><label>Destinatario</label><input id="ck-sname"></div>
+      <div class="fld"><label>Indirizzo*</label><input id="ck-saddr"></div>
+      <div class="f3">
+        <div class="fld"><label>Città*</label><input id="ck-scity"></div>
+        <div class="fld"><label>CAP*</label><input id="ck-szip"></div>
+        <div class="fld"><label>Prov.</label><input id="ck-sprov" maxlength="2"></div>
+      </div>
+      <div class="fld"><label>Paese*</label><input id="ck-scountry" value="Italia"></div>
+    </div>
+    <div id="paypal-area"></div>
+    <div class="formhint" id="formhint">Compila i campi obbligatori (*) per attivare il pagamento.</div>
+    <p style="font-size:11.5px;color:#8a877c;margin-top:12px">I tuoi dati servono solo a gestire l'ordine e la spedizione.</p>`;
+  co.querySelectorAll("input").forEach(i=>i.addEventListener("input",onFormChange));
+  renderPayPal();
+}
+function backToCart(){ checkoutMode=false; renderCart(); }
+function toggleShip(){ document.getElementById("ship-fields").style.display=document.getElementById("ck-same").checked?"none":"block"; onFormChange(); }
+function val(id){ return (document.getElementById(id)?.value||"").trim(); }
+function formValid(){
+  const need=["ck-fn","ck-ln","ck-em","ck-baddr","ck-bcity","ck-bzip","ck-bcountry"];
+  if(!document.getElementById("ck-same").checked) need.push("ck-saddr","ck-scity","ck-szip","ck-scountry");
+  const emailOk=/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val("ck-em"));
+  return need.every(id=>val(id)) && emailOk;
+}
+function onFormChange(){
+  const ok=formValid();
+  document.getElementById("formhint").classList.toggle("show",!ok);
+  const area=document.getElementById("paypal-area");
+  if(area) area.style.opacity=ok?"1":".4", area.style.pointerEvents=ok?"auto":"none";
+}
+function collectOrder(){
+  const same=document.getElementById("ck-same").checked;
+  const sub=cartSubtotal(), ship=shippingCost(sub);
+  return {
+    createdAt: Date.now(), status:"nuovo",
+    customer:{ firstName:val("ck-fn"), lastName:val("ck-ln"), email:val("ck-em"), phone:val("ck-ph") },
+    billing:{ address:val("ck-baddr"), city:val("ck-bcity"), zip:val("ck-bzip"), province:val("ck-bprov"), country:val("ck-bcountry") },
+    shipping: same ? { sameAsBilling:true } : { sameAsBilling:false, name:val("ck-sname"), address:val("ck-saddr"), city:val("ck-scity"), zip:val("ck-szip"), province:val("ck-sprov"), country:val("ck-scountry") },
+    items: cart.map(id=>{const p=find(id);return {id:p.id,name:p.name,base:p.base,size:p.size,price:p.price};}),
+    subtotal:sub, shippingCost:ship, total:sub+ship
+  };
+}
+function saveOrder(paypalOrderId){
+  const order=collectOrder(); order.paypalOrderId=paypalOrderId||null;
+  if(db){ return db.ref(DB_ROOT+"/orders").push(order).then(()=>true).catch(e=>{console.warn(e);return false;}); }
+  return Promise.resolve(false);
+}
+
+/* ---------- PayPal ---------- */
+let paypalLoaded=false,paypalLoading=false;
+function paypalConfigured(){ return CONFIG.PAYPAL_CLIENT_ID && CONFIG.PAYPAL_CLIENT_ID!=="INSERISCI_QUI_IL_TUO_CLIENT_ID"; }
+function loadPayPalSDK(cb){
+  if(paypalLoaded){cb();return;} if(paypalLoading)return; paypalLoading=true;
+  const s=document.createElement("script");
+  s.src=`https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(CONFIG.PAYPAL_CLIENT_ID)}&currency=${CONFIG.PAYPAL_CURRENCY}&intent=capture`;
+  s.onload=()=>{paypalLoaded=true;paypalLoading=false;cb();};
+  s.onerror=()=>{paypalLoading=false;const a=document.getElementById("paypal-area");if(a)a.innerHTML=`<div class="notice"><b>PayPal non disponibile</b>Controlla il Client ID e la connessione.</div>`;};
+  document.head.appendChild(s);
+}
+function renderPayPal(){
+  const area=document.getElementById("paypal-area"); if(!area)return;
+  if(!paypalConfigured()){
+    let pm=""; const tot=cartSubtotal()+shippingCost(cartSubtotal());
+    if(CONFIG.PAYPALME) pm=`<a class="pmlink" target="_blank" rel="noopener" href="${CONFIG.PAYPALME}/${tot.toFixed(2)}EUR">Paga ${euro(tot)} con PayPal.me</a>`;
+    area.innerHTML=`<div class="notice"><b>Checkout da configurare</b>Imposta il Client ID PayPal dal backoffice (sezione PayPal &amp; Config).</div>${pm}`;
+    return;
+  }
+  area.innerHTML="";
+  loadPayPalSDK(()=>{
+    if(!window.paypal)return; area.innerHTML="";
+    paypal.Buttons({
+      style:{color:"black",shape:"rect",label:"pay",height:46},
+      onClick:(data,actions)=>{ if(!formValid()){ onFormChange(); toast("Compila i campi obbligatori"); return actions.reject(); } return actions.resolve(); },
+      createOrder:(data,actions)=>{
+        const sub=cartSubtotal(), ship=shippingCost(sub);
+        return actions.order.create({purchase_units:[{
+          amount:{value:(sub+ship).toFixed(2),currency_code:CONFIG.PAYPAL_CURRENCY,
+            breakdown:{item_total:{value:sub.toFixed(2),currency_code:CONFIG.PAYPAL_CURRENCY},shipping:{value:ship.toFixed(2),currency_code:CONFIG.PAYPAL_CURRENCY}}},
+          items:cart.map(id=>{const p=find(id);return{name:`${p.name} (${p.base||''})`,quantity:"1",unit_amount:{value:Number(p.price).toFixed(2),currency_code:CONFIG.PAYPAL_CURRENCY}};})
+        }]});
+      },
+      onApprove:(data,actions)=>actions.order.capture().then(details=>{
+        const name=details?.payer?.name?.given_name||"";
+        saveOrder(details.id||data.orderID).finally(()=>{
+          cart=[]; persist(); renderGrid();
+          document.getElementById("items").style.display="block";
+          document.getElementById("checkout").classList.remove("show");
+          checkoutMode=false;
+          document.getElementById("drawer-title").textContent="Ordine confermato";
+          document.getElementById("items").innerHTML=`<div class="empty"><strong style="font-size:18px;color:var(--ink)">Ordine confermato ✓</strong><br><br>Grazie${name?(" "+name):""}. Riceverai una conferma via email. Spedizione entro 3 giorni lavorativi.</div>`;
+          document.getElementById("summary").innerHTML="";
+          toast("Pagamento completato");
+        });
+      }),
+      onError:(err)=>{console.error(err);toast("Errore nel pagamento, riprova");}
+    }).render("#paypal-area").then(onFormChange);
+  });
+}
+
+/* ---------- misc ---------- */
+let toastT;
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2200);}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCart();});
+(function(){const it=["PEZZI UNICI","SPEDIZIONE IN TUTTA ITALIA","DENIM RIGENERATO","FATTO A MANO","NUMERATO 1/1"];const h=it.map(t=>`<span>✦ ${t}</span>`).join("");document.getElementById("mq").innerHTML=h+h;})();
+document.getElementById("yr").textContent=new Date().getFullYear();
+boot();
+</script>
+</body>
+</html>
