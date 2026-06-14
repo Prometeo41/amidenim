@@ -876,7 +876,10 @@ function loadIgPhotos(){
   db.ref(DB_ROOT+"/instagram").once("value").then(s=>{
     const val=s.val();
     if(Array.isArray(val)) igPhotos=val;
-    renderIgAdmin();
+    // renderIgAdmin viene chiamata quando si apre il tab
+    // ma se il tab è già aperto, la chiamiamo subito
+    const panel=document.getElementById("panel-instagram");
+    if(panel && panel.classList.contains("active")) renderIgAdmin();
   });
 }
 
@@ -885,6 +888,7 @@ function switchTab(t){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
   document.getElementById("panel-"+t).classList.add("active");
+  if(t==="instagram") renderIgAdmin();
 }
 function resizeImage(file,maxDim,quality,cb){
   const reader=new FileReader();
