@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMIDENIM — Jeans di marca ridisegnati a mano</title>
+<link rel="icon" type="image/jpeg" href="https://prometeo41.github.io/amidenim/logo.jpg">
 <meta name="description" content="Capi di marca vintage selezionati, destrutturati e personalizzati uno a uno. Pezzi unici, denim rigenerato.">
 
 <!-- ============================================================= -->
@@ -73,6 +74,40 @@ nav.links a:hover::after{width:100%}
 .cartbtn{display:inline-flex;align-items:center;gap:9px;cursor:pointer;background:var(--copper);color:#1a1206;border:none;font-family:"Space Mono",monospace;font-weight:700;font-size:13px;padding:11px 16px;border-radius:2px;letter-spacing:.04em}
 .cartbtn:hover{background:var(--copper-bright)}
 .cartbtn .count{background:var(--indigo-raw);color:var(--copper-bright);min-width:20px;height:20px;border-radius:20px;display:grid;place-items:center;font-size:12px;padding:0 5px}
+.hero-logo-wrap{
+  display:flex;align-items:center;justify-content:center;
+}
+.hero-logo-img{
+  width:min(420px,90%);
+  filter:drop-shadow(0 0 40px rgba(126,200,227,.3)) drop-shadow(0 20px 40px rgba(0,0,0,.5));
+  animation:float 5s ease-in-out infinite;
+  mix-blend-mode:normal;
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(-.5deg);}
+  50%{transform:translateY(-16px) rotate(.5deg);}
+}
+.hero-text{display:flex;flex-direction:column;justify-content:center}
+/* hero 2 colonne */
+.hero .wrap#heroWrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.hero.center .wrap#heroWrap{display:flex;flex-direction:column;align-items:center;text-align:center}
+.hero.center .wrap#heroWrap .hero-logo-wrap{display:none}
+
+/* hero 2 colonne con logo */
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.hero-text{display:flex;flex-direction:column;justify-content:center}
+.hero-logo-side{display:flex;align-items:center;justify-content:center}
+.hero-logo-img{
+  width:min(440px,95%);
+  filter:drop-shadow(0 0 50px rgba(126,200,227,.25)) drop-shadow(0 20px 50px rgba(0,0,0,.6));
+  animation:logoFloat 5s ease-in-out infinite;
+}
+@keyframes logoFloat{
+  0%,100%{transform:translateY(0) rotate(-.4deg)}
+  50%{transform:translateY(-18px) rotate(.4deg)}
+}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr}.hero-logo-side{display:none}}
+@media(max-width:860px){.hero .wrap#heroWrap{grid-template-columns:1fr}.hero-logo-wrap{display:none}}
 .hero{background:radial-gradient(120% 90% at 80% -10%,rgba(207,122,46,.18),transparent 55%),linear-gradient(180deg,var(--indigo-raw),var(--indigo) 70%,#16203a);color:var(--cream);padding:78px 0 92px;position:relative;overflow:hidden}
 .hero::before{content:"";position:absolute;inset:0;opacity:.06;pointer-events:none;background-image:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 4px),repeating-linear-gradient(-45deg,#fff 0 1px,transparent 1px 5px)}
 .eyebrow{font-family:"Space Mono",monospace;font-size:12.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--copper-bright);margin-bottom:24px;display:inline-flex;align-items:center;gap:12px;position:relative;z-index:1}
@@ -193,7 +228,10 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 
 <header>
   <div class="wrap bar">
-    <div class="brand" onclick="scrollTo({top:0,behavior:'smooth'})">AMI<b>DENIM</b></div>
+    <div class="brand" onclick="scrollTo({top:0,behavior:'smooth'})" style="display:flex;align-items:center;gap:10px">
+      <img src="https://prometeo41.github.io/amidenim/logo.jpg" alt="logo" style="width:38px;height:38px;object-fit:cover;border-radius:50%;border:1px solid rgba(207,122,46,.4);filter:drop-shadow(0 0 6px rgba(126,200,227,.3))">
+      AMI<b>DENIM</b>
+    </div>
     <nav class="links">
       <a href="#collezione">Collezione</a>
       <a href="#processo">Il processo</a>
@@ -203,14 +241,21 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
   </div>
 </header>
 
-<div class="hero">
-  <div class="wrap">
-    <span class="eyebrow">Denim custom · pezzi unici</span>
-    <h1>Jeans di marca, <em>ridisegnati</em> a mano.</h1>
-    <p class="lead">Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.</p>
-    <div class="cta">
-      <a href="#collezione" class="btn btn-primary">Scopri i pezzi</a>
-      <a href="#processo" class="btn btn-ghost">Come funziona</a>
+<div class="hero" id="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <span class="eyebrow" id="heroEyebrow">Denim custom · pezzi unici</span>
+      <h1 id="heroTitle">Jeans di marca, <em>ridisegnati</em> a mano.</h1>
+      <p class="lead" id="heroLead">Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.</p>
+      <div class="cta">
+        <a href="#collezione" class="btn btn-primary" id="ctaPrimary">Scopri i pezzi</a>
+        <a href="#processo" class="btn btn-ghost" id="ctaSecondary">Come funziona</a>
+      </div>
+    </div>
+    <div class="hero-logo-side">
+      <img src="https://prometeo41.github.io/amidenim/logo.jpg"
+           alt="AMI DENIM logo"
+           class="hero-logo-img">
     </div>
   </div>
 </div>
