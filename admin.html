@@ -261,15 +261,36 @@ pre.rules{background:var(--indigo-raw);color:#cfe0f3;padding:14px;border-radius:
     <div class="card" style="max-width:620px">
       <div class="sect-title">PayPal &amp; spedizione</div>
       <div class="sect-sub">Configurato qui, vale subito sulla vetrina. Niente più modifiche al codice.</div>
-      <div class="field">
-        <label>PayPal Client ID <span style="font-weight:400;color:#8a877c">(opzionale — per pulsante PayPal completo)</span></label>
-        <input type="text" id="cf-ppid" placeholder="incolla il Client ID live di PayPal">
-        <div class="hint">developer.paypal.com → Apps &amp; Credentials → app <b>Live</b>.</div>
+
+      <!-- Modalità pagamento -->
+      <div style="background:#f8f4ee;border:1.5px solid var(--line);border-radius:5px;padding:16px 18px;margin-bottom:18px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#54534a;margin-bottom:12px">Modalità pagamento attiva</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+            <input type="radio" name="pp-mode" id="pp-mode-me" value="me" style="margin-top:3px;accent-color:var(--copper)" onchange="togglePPMode()">
+            <span><strong>PayPal.me</strong> — link diretto, funziona subito, zero configurazione<br><small style="color:#6b6a60">Consigliato — il cliente clicca e paga direttamente sul tuo PayPal</small></span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+            <input type="radio" name="pp-mode" id="pp-mode-sdk" value="sdk" style="margin-top:3px;accent-color:var(--copper)" onchange="togglePPMode()">
+            <span><strong>PayPal SDK</strong> — pulsante PayPal integrato, richiede Client ID Business<br><small style="color:#6b6a60">Per quando hai un account PayPal Business verificato</small></span>
+          </label>
+        </div>
       </div>
-      <div class="field">
-        <label>PayPal.me <span style="font-weight:400;color:#8a877c">(link diretto — funziona subito)</span></label>
-        <input type="text" id="cf-ppme" placeholder="https://paypal.me/tuonome" value="https://paypal.me/GiuseppeIermano">
-        <div class="hint">Il cliente viene reindirizzato a PayPal con il totale già precompilato.</div>
+
+      <div id="pp-me-fields">
+        <div class="field">
+          <label>PayPal.me link</label>
+          <input type="text" id="cf-ppme" placeholder="https://paypal.me/tuonome" value="https://paypal.me/GiuseppeIermano">
+          <div class="hint">Il cliente viene reindirizzato a PayPal con il totale già precompilato.</div>
+        </div>
+      </div>
+
+      <div id="pp-sdk-fields" style="display:none">
+        <div class="field">
+          <label>PayPal Client ID</label>
+          <input type="text" id="cf-ppid" placeholder="incolla il Client ID live di PayPal">
+          <div class="hint">developer.paypal.com → Apps &amp; Credentials → app <b>Live</b>.</div>
+        </div>
       </div>
       <div class="grid3">
         <div class="field"><label>Valuta</label>
@@ -669,18 +690,31 @@ function saveMaxDisplay(){
 }
 
 /* ====================== CONFIG ====================== */
+function togglePPMode(){
+  const mode=document.querySelector('input[name="pp-mode"]:checked')?.value||"me";
+  document.getElementById("pp-me-fields").style.display=mode==="me"?"block":"none";
+  document.getElementById("pp-sdk-fields").style.display=mode==="sdk"?"block":"none";
+}
 function fillConfig(c){
-  document.getElementById("cf-ppid").value=c.paypalClientId||"";
+  const mode=c.paypalMode||"me";
+  const radioMe=document.getElementById("pp-mode-me");
+  const radioSdk=document.getElementById("pp-mode-sdk");
+  if(radioMe) radioMe.checked=mode==="me";
+  if(radioSdk) radioSdk.checked=mode==="sdk";
+  togglePPMode();
   document.getElementById("cf-ppme").value=c.paypalMe||"https://paypal.me/GiuseppeIermano";
+  document.getElementById("cf-ppid").value=c.paypalClientId||"";
   document.getElementById("cf-cur").value=c.paypalCurrency||"EUR";
   document.getElementById("cf-ship").value=c.shipping!=null?c.shipping:8.90;
   document.getElementById("cf-free").value=c.freeShippingOver!=null?c.freeShippingOver:200;
   document.getElementById("cf-name").value=c.shopName||"AMIDENIM";
 }
 function saveConfig(){
+  const mode=document.querySelector('input[name="pp-mode"]:checked')?.value||"me";
   const data={
-    paypalClientId:document.getElementById("cf-ppid").value.trim(),
-    paypalMe:document.getElementById("cf-ppme").value.trim()||"https://paypal.me/GiuseppeIermano",
+    paypalMode: mode,
+    paypalMe: document.getElementById("cf-ppme").value.trim()||"https://paypal.me/GiuseppeIermano",
+    paypalClientId: mode==="sdk" ? document.getElementById("cf-ppid").value.trim() : "",
     paypalCurrency:document.getElementById("cf-cur").value,
     shipping:Number(document.getElementById("cf-ship").value)||0,
     freeShippingOver:Number(document.getElementById("cf-free").value)||null,
