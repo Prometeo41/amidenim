@@ -106,6 +106,24 @@ nav.links a:hover::after{width:100%}
   0%,100%{transform:translateY(0) rotate(-.4deg)}
   50%{transform:translateY(-18px) rotate(.4deg)}
 }
+/* ---- sezione Instagram ---- */
+.instagram{background:var(--paper);padding:70px 0;text-align:center}
+.ig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:32px 0 36px;max-width:640px;margin-left:auto;margin-right:auto}
+.ig-card{aspect-ratio:1/1;background:var(--indigo);overflow:hidden;position:relative;cursor:pointer}
+.ig-card img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.ig-card:hover img{transform:scale(1.06)}
+.ig-card .ig-overlay{position:absolute;inset:0;background:rgba(20,27,41,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.ig-card:hover .ig-overlay{opacity:1}
+.ig-card .ig-overlay span{color:#fff;font-family:"Space Mono",monospace;font-size:13px;font-weight:700;letter-spacing:.08em}
+.ig-placeholder{aspect-ratio:1/1;background:linear-gradient(135deg,var(--indigo) 0%,#2a3a5a 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;transition:transform .3s}
+.ig-placeholder:hover{transform:scale(1.02)}
+.ig-placeholder .ig-icon{font-size:32px;opacity:.5}
+.ig-placeholder p{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--chambray);opacity:.6}
+.ig-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;text-decoration:none;font-family:"Archivo",sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;padding:14px 28px;border-radius:30px;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(253,29,29,.3)}
+.ig-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(253,29,29,.4)}
+.ig-cta svg{width:20px;height:20px;fill:currentColor}
+.ig-handle{font-family:"Space Mono",monospace;font-size:13px;color:var(--copper);margin-top:14px;letter-spacing:.08em}
+@media(max-width:560px){.ig-grid{grid-template-columns:repeat(3,1fr);gap:2px}}
 @media(max-width:860px){.hero-grid{grid-template-columns:1fr}.hero-logo-side{display:none}}
 @media(max-width:860px){.hero .wrap#heroWrap{grid-template-columns:1fr}.hero-logo-wrap{display:none}}
 .hero{background:radial-gradient(120% 90% at 80% -10%,rgba(207,122,46,.18),transparent 55%),linear-gradient(180deg,var(--indigo-raw),var(--indigo) 70%,#16203a);color:var(--cream);padding:78px 0 92px;position:relative;overflow:hidden}
@@ -308,12 +326,51 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
   </div>
 </section>
 
+<section class="instagram">
+  <div class="wrap">
+    <div class="kicker">// Seguici</div>
+    <h2 class="h2">Siamo su Instagram</h2>
+    <p class="sub" style="margin:0 auto;text-align:center">Guarda i nostri pezzi, i lavori in corso e i nuovi arrivi. Ogni capo ha la sua storia.</p>
+
+    <!-- griglia anteprima (placeholder fino a quando non carichi le foto vere) -->
+    <div class="ig-grid">
+      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
+        <div class="ig-icon">👖</div><p>@ami_denim</p>
+      </div>
+      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
+        <div class="ig-icon">🌹</div><p>Vedi i pezzi</p>
+      </div>
+      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
+        <div class="ig-icon">✂️</div><p>Lavori in corso</p>
+      </div>
+      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
+        <div class="ig-icon">💙</div><p>Nuovi arrivi</p>
+      </div>
+      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
+        <div class="ig-icon">⭐</div><p>Custom</p>
+      </div>
+      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
+        <div class="ig-icon">🛍️</div><p>Shop now</p>
+      </div>
+    </div>
+
+    <a href="https://www.instagram.com/ami_denim/" target="_blank" rel="noopener" class="ig-cta">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+      </svg>
+      Seguici su @ami_denim
+    </a>
+    <div class="ig-handle">instagram.com/ami_denim</div>
+  </div>
+</section>
+
+
 <footer>
   <div class="wrap">
     <div class="top">
       <div><div class="brand2">AMI<b>DENIM</b></div><p style="margin-top:10px;max-width:34ch;font-size:14px">Denim di marca ridisegnato a mano. Pezzi unici, spediti in tutta Italia.</p></div>
       <div><h4>Naviga</h4><a href="#collezione">Collezione</a><a href="#processo">Il processo</a><a href="#storia">La storia</a></div>
-      <div><h4>Contatti</h4><a href="mailto:info@amidenim.it">info@amidenim.it</a><a href="#">Instagram</a><a href="#">Spedizioni &amp; resi</a></div>
+      <div><h4>Contatti</h4><a href="mailto:info@amidenim.it">info@amidenim.it</a><a href="https://www.instagram.com/ami_denim/" target="_blank" rel="noopener">Instagram @ami_denim</a><a href="#">Spedizioni &amp; resi</a></div>
     </div>
     <p class="legal">AMIDENIM personalizza capi originali acquistati legalmente: i marchi citati indicano solo la provenienza del capo di partenza, senza alcun rapporto di affiliazione o sponsorizzazione. © <span id="yr"></span> AMIDENIM · IermanoLab.</p>
   </div>
