@@ -329,6 +329,7 @@ function boot(){
           CONFIG.PAYPAL_CLIENT_ID=c.paypalClientId||CONFIG.PAYPAL_CLIENT_ID;
           CONFIG.PAYPAL_CURRENCY=c.paypalCurrency||CONFIG.PAYPAL_CURRENCY;
           CONFIG.PAYPALME=c.paypalMe||CONFIG.PAYPALME;
+          CONFIG.PAYPAL_MODE=c.paypalMode||"me";
           CONFIG.SHIPPING=c.shipping!=null?c.shipping:CONFIG.SHIPPING;
           CONFIG.FREE_SHIPPING_OVER=c.freeShippingOver!=null?c.freeShippingOver:CONFIG.FREE_SHIPPING_OVER;
           CONFIG.SHOP_NAME=c.shopName||CONFIG.SHOP_NAME; CONFIG.MAX_DISPLAY=c.maxDisplay||0;
@@ -531,23 +532,29 @@ function saveOrder(paypalOrderId){
 }
 
 let paypalLoaded=false,paypalLoading=false;
-function paypalConfigured(){ return CONFIG.PAYPAL_CLIENT_ID && CONFIG.PAYPAL_CLIENT_ID!=="INSERISCI_QUI_IL_TUO_CLIENT_ID"; }
+function paypalSDKConfigured(){ return CONFIG.PAYPAL_CLIENT_ID && CONFIG.PAYPAL_CLIENT_ID!=="INSERISCI_QUI_IL_TUO_CLIENT_ID" && CONFIG.PAYPAL_CLIENT_ID.length>20; }
 function loadPayPalSDK(cb){
   if(paypalLoaded){cb();return;} if(paypalLoading)return; paypalLoading=true;
   const s=document.createElement("script");
   s.src=`https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(CONFIG.PAYPAL_CLIENT_ID)}&currency=${CONFIG.PAYPAL_CURRENCY}&intent=capture`;
   s.onload=()=>{paypalLoaded=true;paypalLoading=false;cb();};
-  s.onerror=()=>{paypalLoading=false;const a=document.getElementById("paypal-area");if(a)a.innerHTML=`<div class="notice"><b>PayPal non disponibile</b>Controlla il Client ID e la connessione.</div>`;};
+  s.onerror=()=>{paypalLoading=false;const a=document.getElementById("paypal-area");if(a)a.innerHTML=`<div class="notice"><b>PayPal SDK non disponibile</b>Controlla il Client ID.</div>`;};
   document.head.appendChild(s);
 }
 function renderPayPal(){
   const area=document.getElementById("paypal-area"); if(!area)return;
-  if(!paypalConfigured()){
-    let pm=""; const tot=cartSubtotal()+shippingCost(cartSubtotal());
-    if(CONFIG.PAYPALME) pm=`<a class="pmlink" target="_blank" rel="noopener" href="${CONFIG.PAYPALME}/${tot.toFixed(2)}EUR">Paga ${euro(tot)} con PayPal.me</a>`;
-    area.innerHTML=`<div class="notice"><b>Checkout da configurare</b>Imposta il Client ID PayPal dal backoffice (sezione PayPal &amp; Config).</div>${pm}`;
+  const tot=cartSubtotal()+shippingCost(cartSubtotal());
+  const mode=CONFIG.PAYPAL_MODE||"me";
+  // Modalita PayPal.me — prioritaria se selezionata o SDK non configurato
+  if(mode==="me" || !paypalSDKConfigured()){
+    if(CONFIG.PAYPALME){
+      area.innerHTML=`<a class="pmlink" target="_blank" rel="noopener" href="${CONFIG.PAYPALME}/${tot.toFixed(2)}EUR">Paga ${euro(tot)} con PayPal.me</a>`;
+    } else {
+      area.innerHTML=`<div class="notice"><b>Pagamento non configurato</b>Imposta il link PayPal.me dal backoffice.</div>`;
+    }
     return;
   }
+  // Modalita SDK PayPal completo
   area.innerHTML="";
   loadPayPalSDK(()=>{
     if(!window.paypal)return; area.innerHTML="";
