@@ -262,9 +262,14 @@ pre.rules{background:var(--indigo-raw);color:#cfe0f3;padding:14px;border-radius:
       <div class="sect-title">PayPal &amp; spedizione</div>
       <div class="sect-sub">Configurato qui, vale subito sulla vetrina. Niente più modifiche al codice.</div>
       <div class="field">
-        <label>PayPal Client ID</label>
+        <label>PayPal Client ID <span style="font-weight:400;color:#8a877c">(opzionale — per pulsante PayPal completo)</span></label>
         <input type="text" id="cf-ppid" placeholder="incolla il Client ID live di PayPal">
         <div class="hint">developer.paypal.com → Apps &amp; Credentials → app <b>Live</b>.</div>
+      </div>
+      <div class="field">
+        <label>PayPal.me <span style="font-weight:400;color:#8a877c">(link diretto — funziona subito)</span></label>
+        <input type="text" id="cf-ppme" placeholder="https://paypal.me/tuonome" value="https://paypal.me/GiuseppeIermano">
+        <div class="hint">Il cliente viene reindirizzato a PayPal con il totale già precompilato.</div>
       </div>
       <div class="grid3">
         <div class="field"><label>Valuta</label>
@@ -666,6 +671,7 @@ function saveMaxDisplay(){
 /* ====================== CONFIG ====================== */
 function fillConfig(c){
   document.getElementById("cf-ppid").value=c.paypalClientId||"";
+  document.getElementById("cf-ppme").value=c.paypalMe||"https://paypal.me/GiuseppeIermano";
   document.getElementById("cf-cur").value=c.paypalCurrency||"EUR";
   document.getElementById("cf-ship").value=c.shipping!=null?c.shipping:8.90;
   document.getElementById("cf-free").value=c.freeShippingOver!=null?c.freeShippingOver:200;
@@ -674,6 +680,7 @@ function fillConfig(c){
 function saveConfig(){
   const data={
     paypalClientId:document.getElementById("cf-ppid").value.trim(),
+    paypalMe:document.getElementById("cf-ppme").value.trim()||"https://paypal.me/GiuseppeIermano",
     paypalCurrency:document.getElementById("cf-cur").value,
     shipping:Number(document.getElementById("cf-ship").value)||0,
     freeShippingOver:Number(document.getElementById("cf-free").value)||null,
