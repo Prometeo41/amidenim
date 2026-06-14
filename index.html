@@ -332,27 +332,8 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
     <h2 class="h2">Siamo su Instagram</h2>
     <p class="sub" style="margin:0 auto;text-align:center">Guarda i nostri pezzi, i lavori in corso e i nuovi arrivi. Ogni capo ha la sua storia.</p>
 
-    <!-- griglia anteprima (placeholder fino a quando non carichi le foto vere) -->
-    <div class="ig-grid">
-      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
-        <div class="ig-icon">👖</div><p>@ami_denim</p>
-      </div>
-      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
-        <div class="ig-icon">🌹</div><p>Vedi i pezzi</p>
-      </div>
-      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
-        <div class="ig-icon">✂️</div><p>Lavori in corso</p>
-      </div>
-      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
-        <div class="ig-icon">💙</div><p>Nuovi arrivi</p>
-      </div>
-      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
-        <div class="ig-icon">⭐</div><p>Custom</p>
-      </div>
-      <div class="ig-placeholder" onclick="window.open('https://www.instagram.com/ami_denim/','_blank')">
-        <div class="ig-icon">🛍️</div><p>Shop now</p>
-      </div>
-    </div>
+    <!-- griglia Instagram (foto caricate dal backoffice) -->
+    <div class="ig-grid" id="ig-grid"></div>
 
     <a href="https://www.instagram.com/ami_denim/" target="_blank" rel="noopener" class="ig-cta">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -397,6 +378,25 @@ footer .legal{font-size:12.5px;color:#5d6b80;margin-top:24px;max-width:62ch}
 
 <script>
 let db=null, cart=[], checkoutMode=false;
+const IG_ICONS    = ["👖","🌹","✂️","💙","⭐","🛍️"];
+const IG_CAPTIONS = ["@ami_denim","Vedi i pezzi","Lavori in corso","Nuovi arrivi","Custom","Shop now"];
+
+function renderIgGrid(photos){
+  const grid = document.getElementById("ig-grid"); if(!grid) return;
+  const list = Array.isArray(photos) ? photos : ["","","","","",""];
+  grid.innerHTML = list.map((src,i)=>{
+    if(src){
+      return `<a href="https://www.instagram.com/ami_denim/" target="_blank" rel="noopener" class="ig-card">
+        <img src="${src}" alt="AMI DENIM Instagram ${i+1}" loading="lazy">
+        <div class="ig-overlay"><span>Vedi su Instagram</span></div>
+      </a>`;
+    }
+    return `<a href="https://www.instagram.com/ami_denim/" target="_blank" rel="noopener" class="ig-placeholder">
+      <div class="ig-icon">${IG_ICONS[i]}</div>
+      <p>${IG_CAPTIONS[i]}</p>
+    </a>`;
+  }).join("");
+}
 try{ const s=localStorage.getItem("amidenim_cart"); if(s) cart=JSON.parse(s); }catch(e){}
 function persist(){ try{ localStorage.setItem("amidenim_cart",JSON.stringify(cart)); }catch(e){} }
 const euro=n=>"€"+Number(n).toFixed(2).replace(".",",");
@@ -411,8 +411,10 @@ function boot(){
       db=firebase.database();
       Promise.all([
         db.ref(DB_ROOT+"/config").once("value"),
-        db.ref(DB_ROOT+"/products").once("value")
-      ]).then(([cs,ps])=>{
+        db.ref(DB_ROOT+"/products").once("value"),
+        db.ref(DB_ROOT+"/site").once("value"),
+        db.ref(DB_ROOT+"/instagram").once("value")
+      ]).then(([cs,ps,ss,igs])=>{
         const c=cs.val(); if(c){
           CONFIG.PAYPAL_CLIENT_ID=c.paypalClientId||CONFIG.PAYPAL_CLIENT_ID;
           CONFIG.PAYPAL_CURRENCY=c.paypalCurrency||CONFIG.PAYPAL_CURRENCY;
@@ -430,11 +432,14 @@ function boot(){
           if(CONFIG.MAX_DISPLAY>0) arr=arr.slice(0,CONFIG.MAX_DISPLAY);
           PRODUCTS=arr;
         }
+        applySite(mergeSite(ss.val()));
+        renderIgGrid(igs.val());
+        cleanCart();
         renderGrid();
-      }).catch(err=>{ console.warn("Firebase non raggiungibile, uso il catalogo di riserva.",err); renderGrid(); });
-    }catch(e){ console.warn(e); renderGrid(); }
+      }).catch(err=>{ console.warn("Firebase non raggiungibile.",err); applySite(DEFAULT_SITE); renderIgGrid([]); cleanCart(); renderGrid(); });
+    }catch(e){ console.warn(e); applySite(DEFAULT_SITE); renderIgGrid([]); cleanCart(); renderGrid(); }
   }else{
-    renderGrid();
+    applySite(DEFAULT_SITE); renderIgGrid([]); cleanCart(); renderGrid();
   }
 }
 
