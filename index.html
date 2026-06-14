@@ -383,7 +383,13 @@ const IG_CAPTIONS = ["@ami_denim","Vedi i pezzi","Lavori in corso","Nuovi arrivi
 
 function renderIgGrid(photos){
   const grid = document.getElementById("ig-grid"); if(!grid) return;
-  const list = Array.isArray(photos) ? photos : ["","","","","",""];
+  // Firebase può restituire oggetto {0:"",1:"",...} invece di array
+  let list;
+  if(Array.isArray(photos)) list = photos;
+  else if(photos && typeof photos === "object") list = Object.values(photos);
+  else list = ["","","","","",""];
+  // Assicura sempre 6 elementi
+  while(list.length < 6) list.push("");
   grid.innerHTML = list.map((src,i)=>{
     if(src){
       return `<a href="https://www.instagram.com/ami_denim/" target="_blank" rel="noopener" class="ig-card">
