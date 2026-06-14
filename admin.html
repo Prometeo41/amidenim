@@ -225,6 +225,7 @@ pre.rules{background:var(--indigo-raw);color:#cfe0f3;padding:14px;border-radius:
   <div class="tabs">
     <button class="tab active" data-tab="prod" onclick="switchTab('prod')">Prodotti</button>
     <button class="tab" data-tab="aspetto" onclick="switchTab('aspetto')">Aspetto</button>
+    <button class="tab" data-tab="instagram" onclick="switchTab('instagram')">Instagram</button>
     <button class="tab" data-tab="contenuti" onclick="switchTab('contenuti')">Contenuti</button>
     <button class="tab" data-tab="conf" onclick="switchTab('conf')">PayPal &amp; Config</button>
     <button class="tab" data-tab="ord" onclick="switchTab('ord')">Ordini &amp; Clienti <span class="badge" id="ord-badge">0</span></button>
@@ -339,6 +340,20 @@ pre.rules{background:var(--indigo-raw);color:#cfe0f3;padding:14px;border-radius:
       <button class="btn btn-copper" onclick="saveSite()">Salva aspetto</button>
       <button class="btn btn-ghost" onclick="resetSite()">Ripristina default</button>
       <a class="btn btn-dark" href="https://prometeo41.github.io/amidenim/" target="_blank" style="text-decoration:none">Apri vetrina ↗</a>
+    </div>
+  </div>
+
+  <!-- TAB INSTAGRAM -->
+  <div class="panel" id="panel-instagram">
+    <div class="card" style="max-width:760px">
+      <div class="sect-title">Griglia Instagram</div>
+      <div class="sect-sub">Carica le 6 foto che appaiono nella sezione Instagram della vetrina. Clicca su una casella per scegliere la foto.</div>
+      <div id="ig-admin-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px"></div>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-copper" onclick="saveIgPhotos()">Salva foto Instagram</button>
+        <button class="btn btn-ghost" onclick="resetIgPhotos()">Ripristina placeholder</button>
+      </div>
+      <div class="msg ok" id="ig-msg" style="margin-top:14px">Foto salvate. Ricarica la vetrina per vederle.</div>
     </div>
   </div>
 
@@ -539,6 +554,7 @@ function loadAll(){
   db.ref(DB_ROOT+"/config").once("value").then(s=>{ const c=s.val()||{}; fillConfig(c);
     document.getElementById("maxDisplay").value = c.maxDisplay||0; });
   db.ref(DB_ROOT+"/site").once("value").then(s=>{ fillSite(mergeSite(s.val())); });
+  loadIgPhotos();
 }
 
 /* ====================== SITO (aspetto + contenuti) ====================== */
@@ -802,6 +818,66 @@ function exportCSV(){
   const csv=[head.join(","),...rows].join("\n");
   const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="amidenim-ordini.csv"; a.click();
+}
+
+/* ====================== INSTAGRAM ====================== */
+let igPhotos = ["","","","","",""];
+const IG_LABELS = ["Foto 1","Foto 2","Foto 3","Foto 4","Foto 5","Foto 6"];
+const IG_ICONS  = ["👖","🌹","✂️","💙","⭐","🛍️"];
+const IG_CAPTIONS = ["@ami_denim","Vedi i pezzi","Lavori in corso","Nuovi arrivi","Custom","Shop now"];
+
+function renderIgAdmin(){
+  const grid = document.getElementById("ig-admin-grid"); if(!grid) return;
+  grid.innerHTML = igPhotos.map((src,i)=>`
+    <div style="position:relative;aspect-ratio:1/1;cursor:pointer;border:2px dashed var(--line);border-radius:4px;overflow:hidden;background:var(--indigo)"
+         onclick="document.getElementById('ig-file-${i}').click()">
+      ${src
+        ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block">`
+        : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;color:var(--chambray)">
+             <span style="font-size:28px">${IG_ICONS[i]}</span>
+             <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em">${IG_LABELS[i]}</span>
+             <span style="font-size:11px;opacity:.5">Clicca per caricare</span>
+           </div>`}
+      <input type="file" id="ig-file-${i}" accept="image/*" style="display:none"
+             onchange="onIgPhoto(event,${i})">
+      ${src ? `<button onclick="event.stopPropagation();clearIgPhoto(${i})"
+        style="position:absolute;top:6px;right:6px;background:rgba(20,27,41,.8);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">×</button>`:""}
+    </div>`).join("");
+}
+
+function onIgPhoto(e, idx){
+  const file = e.target.files[0]; if(!file) return;
+  resizeImage(file, 800, 0.85, dataUrl=>{
+    igPhotos[idx] = dataUrl;
+    renderIgAdmin();
+  });
+}
+
+function clearIgPhoto(idx){
+  igPhotos[idx] = "";
+  renderIgAdmin();
+}
+
+function saveIgPhotos(){
+  db.ref(DB_ROOT+"/instagram").set(igPhotos).then(()=>{
+    const m=document.getElementById("ig-msg"); if(m){m.classList.add("show");setTimeout(()=>m.classList.remove("show"),3000);}
+    toast("Foto Instagram salvate");
+  }).catch(e=>toast("Errore: "+e.message));
+}
+
+function resetIgPhotos(){
+  if(confirm("Rimuovere tutte le foto Instagram e tornare ai placeholder?")){
+    igPhotos=["","","","","",""];
+    db.ref(DB_ROOT+"/instagram").remove().then(()=>{ renderIgAdmin(); toast("Foto rimosse"); });
+  }
+}
+
+function loadIgPhotos(){
+  db.ref(DB_ROOT+"/instagram").once("value").then(s=>{
+    const val=s.val();
+    if(Array.isArray(val)) igPhotos=val;
+    renderIgAdmin();
+  });
 }
 
 /* ====================== UTIL ====================== */
