@@ -21,7 +21,7 @@ function firebaseConfigured(){ return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.
 
 let CONFIG = {
   PAYPAL_CLIENT_ID: "INSERISCI_QUI_IL_TUO_CLIENT_ID",
-  PAYPAL_CURRENCY: "EUR", PAYPALME: "", SHOP_NAME: "AMIDENIM",
+  PAYPAL_CURRENCY: "EUR", PAYPALME: "https://paypal.me/GiuseppeIermano", SHOP_NAME: "AMIDENIM",
   SHIPPING: 8.90, FREE_SHIPPING_OVER: 200
 };
 let PRODUCTS = [
@@ -328,6 +328,7 @@ function boot(){
         const c=cs.val(); if(c){
           CONFIG.PAYPAL_CLIENT_ID=c.paypalClientId||CONFIG.PAYPAL_CLIENT_ID;
           CONFIG.PAYPAL_CURRENCY=c.paypalCurrency||CONFIG.PAYPAL_CURRENCY;
+          CONFIG.PAYPALME=c.paypalMe||CONFIG.PAYPALME;
           CONFIG.SHIPPING=c.shipping!=null?c.shipping:CONFIG.SHIPPING;
           CONFIG.FREE_SHIPPING_OVER=c.freeShippingOver!=null?c.freeShippingOver:CONFIG.FREE_SHIPPING_OVER;
           CONFIG.SHOP_NAME=c.shopName||CONFIG.SHOP_NAME; CONFIG.MAX_DISPLAY=c.maxDisplay||0;
