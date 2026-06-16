@@ -412,6 +412,104 @@ const find=id=>PRODUCTS.find(p=>p.id===id);
 function cleanCart(){ const before=cart.length; cart=cart.filter(id=>find(id)); if(cart.length!==before) persist(); }
 
 /* ---------- caricamento da Firebase ---------- */
+
+/* ====================== SITE CUSTOMIZATION ====================== */
+const DEFAULT_SITE = {
+  theme:{ dark:"#141b29", deep:"#1d2a45", accent:"#cf7a2e", accent2:"#ec9646", light:"#f1ece1", paper:"#e7e0d2", text:"#13181f" },
+  layout:{ cols:3, heroAlign:"left", order:["collezione","processo","storia"], showMarquee:true, showProcesso:true, showStoria:true },
+  content:{
+    brand:"AMI|DENIM",
+    heroEyebrow:"Denim custom · pezzi unici",
+    heroTitle:"Jeans di marca, *ridisegnati* a mano.",
+    heroLead:"Capi originali vintage, selezionati per tessuto e vestibilità, poi destrutturati e personalizzati uno a uno. Niente serie, niente doppioni: quello che vedi è l'unico esemplare che esiste.",
+    ctaPrimary:"Scopri i pezzi", ctaSecondary:"Come funziona",
+    marquee:"PEZZI UNICI, SPEDIZIONE IN TUTTA ITALIA, DENIM RIGENERATO, FATTO A MANO, NUMERATO 1/1",
+    colKicker:"// La collezione", colTitle:"Sei pezzi, sei storie",
+    colSub:"Ogni capo è numerato e venduto in copia singola. Una volta in carrello, è tuo: nessun altro avrà lo stesso.",
+    procKicker:"// Dal capo originale al pezzo unico", procTitle:"Il processo",
+    step1Title:"Selezione", step1Text:"Recuperiamo capi originali di marca, scelti a uno a uno per qualità del tessuto e vestibilità.",
+    step2Title:"Destrutturazione", step2Text:"Scuciture, tagli, lavaggi e trattamenti fatti a mano in laboratorio.",
+    step3Title:"Firma", step3Text:"Custom finale: vernici, toppe, ricami a contrasto. Ogni pezzo esce numerato e irripetibile.",
+    edTitle:"Non produciamo jeans.\nNe diamo un secondo giro.",
+    edText:"AMIDENIM nasce da un'idea semplice: il denim di marca è fatto per durare decenni, ma finisce dimenticato negli armadi.",
+    edBullets:"Capi base autentici, non riproduzioni\nLavorazione artigianale, zero produzione in serie\nOgni pezzo numerato e fotografato com'è\nMeno tessuto nuovo, più denim rimesso in circolo",
+    footTagline:"Denim di marca ridisegnato a mano. Pezzi unici, spediti in tutta Italia.",
+    footEmail:"info@amidenim.it",
+    footLegal:"AMIDENIM personalizza capi originali acquistati legalmente: i marchi citati indicano solo la provenienza del capo di partenza, senza alcun rapporto di affiliazione o sponsorizzazione."
+  }
+};
+
+function mergeSite(s){
+  s=s||{};
+  return {
+    theme:Object.assign({},DEFAULT_SITE.theme,s.theme||{}),
+    layout:Object.assign({},DEFAULT_SITE.layout,s.layout||{}),
+    content:Object.assign({},DEFAULT_SITE.content,s.content||{})
+  };
+}
+
+function esc(s){return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function accentFmt(s){return esc(s).replace(/\*([^*]+)\*/g,"<em>$1</em>");}
+function accentNl(s){return esc(s).replace(/\*([^*]+)\*/g,"<em>$1</em>").replace(/\n/g,"<br>");}
+function setT(id,v){const e=document.getElementById(id);if(e&&v!=null)e.textContent=v;}
+function setH(id,v){const e=document.getElementById(id);if(e&&v!=null)e.innerHTML=v;}
+function renderBrand(id,brand){
+  const e=document.getElementById(id);if(!e)return;
+  const parts=(brand||"AMIDENIM").split("|");
+  e.innerHTML=esc(parts[0])+(parts[1]!==undefined?`<b>${esc(parts[1])}</b>`:"");
+}
+function buildMarquee(list){
+  const items=(list||[]).filter(Boolean);
+  const h=items.map(t=>`<span>✦ ${esc(t)}</span>`).join("");
+  const mq=document.getElementById("mq"); if(mq) mq.innerHTML=h+h;
+}
+
+function applySite(site){
+  if(!site) site=DEFAULT_SITE;
+  const t=site.theme||{}, l=site.layout||{}, c=site.content||{};
+  const r=document.documentElement.style;
+  if(t.dark) r.setProperty("--indigo-raw",t.dark);
+  if(t.deep){ r.setProperty("--indigo",t.deep); }
+  if(t.accent){ r.setProperty("--copper",t.accent); }
+  if(t.accent2) r.setProperty("--copper-bright",t.accent2);
+  if(t.light) r.setProperty("--cream",t.light);
+  if(t.paper) r.setProperty("--paper",t.paper);
+  if(t.text) r.setProperty("--ink",t.text);
+  // contenuti
+  renderBrand("brandHeader",c.brand); renderBrand("brandFooter",c.brand); renderBrand("brandPatch",c.brand);
+  setT("heroEyebrow",c.heroEyebrow); setH("heroTitle",accentFmt(c.heroTitle||"")); setT("heroLead",c.heroLead);
+  setT("ctaPrimary",c.ctaPrimary); setT("ctaSecondary",c.ctaSecondary);
+  buildMarquee((c.marquee||"").split(",").map(s=>s.trim()));
+  setT("colKicker",c.colKicker); setT("colTitle",c.colTitle); setT("colSub",c.colSub);
+  setT("procKicker",c.procKicker); setT("procTitle",c.procTitle);
+  setT("step1Title",c.step1Title); setT("step1Text",c.step1Text);
+  setT("step2Title",c.step2Title); setT("step2Text",c.step2Text);
+  setT("step3Title",c.step3Title); setT("step3Text",c.step3Text);
+  setH("edTitle",accentNl(c.edTitle||"")); setT("edText",c.edText);
+  const eb=document.getElementById("edBullets");
+  if(eb) eb.innerHTML=(c.edBullets||"").split("\n").filter(x=>x.trim()).map(x=>`<li>${esc(x.trim())}</li>`).join("");
+  setT("footTagline",c.footTagline);
+  const fe=document.getElementById("footEmail");
+  if(fe&&c.footEmail){fe.textContent=c.footEmail;fe.href="mailto:"+c.footEmail;}
+  const brandPlain=(c.brand||"AMIDENIM").replace("|","");
+  const fl=document.getElementById("footLegal");
+  if(fl) fl.textContent=(c.footLegal||"")+" © "+new Date().getFullYear()+" "+brandPlain+" · IermanoLab.";
+  // layout
+  const grid=document.getElementById("grid");
+  if(grid) grid.className="grid cols-"+(l.cols||3);
+  const hero=document.getElementById("hero");
+  if(hero) hero.classList.toggle("center",l.heroAlign==="center");
+  const mw=document.getElementById("marquee-wrap");
+  if(mw) mw.style.display=l.showMarquee===false?"none":"";
+  const proc=document.getElementById("processo");
+  if(proc) proc.style.display=l.showProcesso===false?"none":"";
+  const stor=document.getElementById("storia");
+  if(stor) stor.style.display=l.showStoria===false?"none":"";
+  const order=(l.order&&l.order.length)?l.order:["collezione","processo","storia"];
+  const footer=document.querySelector("footer");
+  if(footer) order.forEach(id=>{const el=document.getElementById(id);if(el)document.body.insertBefore(el,footer);});
+}
+
 function boot(){
   if(firebaseConfigured()){
     try{
