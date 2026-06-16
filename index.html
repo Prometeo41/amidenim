@@ -390,10 +390,12 @@ function renderIgGrid(photos){
   } else if(photos && typeof photos === "object"){
     Object.entries(photos).forEach(([k,v])=>{ const n=Number(k); if(n>=0&&n<6) list[n]=v||""; });
   }
+  const cv = Math.floor(Date.now()/300000);
   grid.innerHTML = list.map((src,i)=>{
     if(src){
+      const url = src + (src.includes('?') ? '&' : '?') + 'v=' + cv;
       return `<a href="https://www.instagram.com/ami_denim/" target="_blank" rel="noopener" class="ig-card">
-        <img src="${src}" alt="AMI DENIM Instagram ${i+1}" loading="lazy">
+        <img src="${url}" alt="AMI DENIM Instagram ${i+1}" loading="lazy">
         <div class="ig-overlay"><span>Vedi su Instagram</span></div>
       </a>`;
     }
